@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto-subtitle"
+version = "0.2.0"
+description = "Reusable CLI for rebuilding subtitles from audio, syncing draft SRTs, and optionally adding speaker diarization"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Alonso + Hermes" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+diarization = [
+  "torch>=2.2",
+  "pyannote.audio>=3.3",
+]
+
+test = [
+  "pytest>=8",
+]
+
+[project.scripts]
+auto-subtitle = "auto_subtitle.cli:main"
+subtitle-workflow = "auto_subtitle.cli:main"
+auto-subtitle-diarize = "auto_subtitle.diarize:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
