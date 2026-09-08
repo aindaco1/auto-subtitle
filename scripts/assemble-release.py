@@ -18,7 +18,9 @@ tag = os.environ['RELEASE_TAG']
 assert re.fullmatch(r'v\d+\.\d+\.\d+', tag)
 repository = os.environ['GH_REPO']
 assert repository == 'aindaco1/auto-subtitle'
-release = json.loads(gh('api', f'repos/{repository}/releases/tags/{tag}'))
+# GitHub's tag endpoint omits drafts; authenticated release inventory includes them.
+pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{repository}/releases?per_page=100'))
+release = next(release for page in pages for release in page if release['tag_name'] == tag)
 assert release['draft'], 'Never mutate a published release.'
 name = f'Auto-Subtitle-{tag[1:]}-arm64.dmg'
 with tempfile.TemporaryDirectory(prefix='auto-subtitle-assemble-') as temporary:
