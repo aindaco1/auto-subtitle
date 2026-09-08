@@ -1,0 +1,27 @@
+name: Assemble staged release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Draft release tag with checksum-verified upload parts
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: assemble-release-${{ inputs.tag }}
+  cancel-in-progress: false
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Verify and assemble draft DMG
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: python3 scripts/assemble-release.py
