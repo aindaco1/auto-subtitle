@@ -33,7 +33,7 @@ swift test --package-path macos
 bash scripts/build-app.sh
 ```
 
-Pytest is scoped to `tests/`, not bundled third-party test suites. The GitHub workflow runs engine/Python, Swift and pinned Whisper build gates using pinned actions inherited from the Podcast Visualizer CI baseline. It has been added locally but has not run on GitHub in this task.
+Pytest is scoped to `tests/`, not bundled third-party test suites. The GitHub workflow runs engine/Python, Swift and pinned Whisper build gates using pinned actions inherited from the Podcast Visualizer CI baseline and stable Xcode 26.3. [Release-source CI passed](https://github.com/aindaco1/auto-subtitle/actions/runs/34186084184) for the immutable 1.0.0 tag, including the clean speech-helper build and generated model-manifest comparison.
 
 `build-app.sh` emits `~/Library/Caches/AutoSubtitleBuild/Auto Subtitle.app` by default; `AUTO_SUBTITLE_BUILD_DIR` overrides the parent. App directories under iCloud can acquire Finder metadata that invalidates signatures, so keep the working bundle outside CloudDocs. Existing builds are retained as `.backup` directories. The bundle gate checks local Python imports, required executables (including a runnable Whisper CLI), contained symlinks and Mach-O dependencies with only `/usr/bin:/bin` on PATH. It then applies and verifies an ad-hoc local signature.
 
