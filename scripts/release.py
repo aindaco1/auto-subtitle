@@ -160,6 +160,7 @@ def appcast(image):
             '--download-url-prefix', f'https://github.com/aindaco1/auto-subtitle/releases/download/v{version}/',
             '--link', 'https://github.com/aindaco1/auto-subtitle', '--embed-release-notes', '--maximum-versions', '1',
             '-o', DIST / 'appcast.xml', folder)
+    run(tool.with_name('sign_update'), '--ed-key-file', AUTH / 'auto-subtitle-sparkle-ed25519-private.key', DIST / 'appcast.xml')
     document = ET.parse(DIST / 'appcast.xml')
     enclosure = document.find('./channel/item/enclosure')
     ns = '{http://www.andymatuschak.org/xml-namespaces/sparkle}'
