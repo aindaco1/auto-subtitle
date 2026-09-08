@@ -107,10 +107,14 @@ def package(app):
     assert not output.exists(), 'Never overwrite a release asset; move an unpublished candidate aside first.'
     with tempfile.TemporaryDirectory(prefix='auto-subtitle-release-', dir='/private/tmp') as temporary:
         folder = Path(temporary)
-        archive = folder / 'Auto-Subtitle.app.zip'
-        run('ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', app, archive)
-        notarize(archive, 'APP')
-        run('xcrun', 'stapler', 'staple', app)
+        ticket = subprocess.run(['xcrun', 'stapler', 'validate', str(app)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if ticket.returncode != 0 or not (DIST / 'NOTARIZATION-APP.json').exists():
+            archive = folder / 'Auto-Subtitle.app.zip'
+            run('ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', app, archive)
+            notarize(archive, 'APP')
+            run('xcrun', 'stapler', 'staple', app)
+        run('codesign', '--verify', '--deep', '--strict', app)
         run('xcrun', 'stapler', 'validate', app)
         run('spctl', '--assess', '--type', 'execute', '--verbose=2', app)
         stage = folder / 'stage'
@@ -118,8 +122,10 @@ def package(app):
         run('ditto', '--norsrc', '--noextattr', app, stage / 'Auto Subtitle.app')
         (stage / 'Applications').symlink_to('/Applications')
         image = folder / output.name
-        run('hdiutil', 'create', '-fs', 'HFS+', '-format', 'UDZO', '-srcfolder', stage, '-volname', 'Auto Subtitle', image)
+        # APFS preserves hidden runtime files without HFS+ FinderInfo synthesis.
+        run('hdiutil', 'create', '-fs', 'APFS', '-format', 'UDZO', '-srcfolder', stage, '-volname', 'Auto Subtitle', image)
         run('codesign', '--force', '--timestamp', '--sign', IDENTITY, image)
+        verify_contents(image)
         notarize(image, 'DMG')
         run('xcrun', 'stapler', 'staple', image)
         run('xcrun', 'stapler', 'validate', image)
@@ -131,6 +137,9 @@ def verify(image):
     run('codesign', '--verify', '--verbose=2', image)
     run('xcrun', 'stapler', 'validate', image)
     run('spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', '--verbose=2', image)
+    verify_contents(image)
+
+def verify_contents(image):
     with tempfile.TemporaryDirectory(prefix='auto-subtitle-verify-', dir='/private/tmp') as temporary:
         mount = Path(temporary) / 'mount'
         mount.mkdir()
