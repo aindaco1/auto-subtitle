@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "auto-subtitle"
-version = "0.2.0"
-description = "Reusable CLI for rebuilding subtitles from audio, syncing draft SRTs, and optionally adding speaker diarization"
+version = "1.0.0"
+description = "Local macOS subtitle alignment and Parakeet generation"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
@@ -33,3 +33,7 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

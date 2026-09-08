@@ -236,7 +236,7 @@ def test_finalize_cues_caps_unreasonably_long_short_text_durations():
 
 
 def test_review_csv_writer_output(tmp_path: Path):
-    from subtitle_workflow import write_review_csv
+    from auto_subtitle.workflow import write_review_csv
 
     rows = [{"reason": "low_similarity", "start": 1.25, "end": 2.0, "text": "foo", "source_text": "bar"}]
     path = tmp_path / "review.csv"

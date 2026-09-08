@@ -7,7 +7,9 @@ __pycache__/
 .DS_Store
 build/
 dist/
-*.wav
-*.json
-*.srt
-*.csv
+node_modules/
+runtime/
+artifacts/
+.build/
+.swiftpm/
+jobs/

@@ -1,0 +1,37 @@
+{
+  "platform": "macos-arm64",
+  "version": "24.19.0",
+  "minimumMacOS": "13.5",
+  "license": "Node.js contributors license",
+  "source": {
+    "url": "https://nodejs.org/dist/v24.19.0/node-v24.19.0-darwin-arm64.tar.xz",
+    "sha256": "3f1cf157479c1480352083105e13faf9d008ede98e7e157746b6df940d197b94"
+  },
+  "schemaVersion": "podcast-visualizer-node-runtime-v2",
+  "parentManifestSha256": "5813f6cc22443f777f28fe9cdb7ca244c8913559d17b9aa93dcfaa41d259b6f8",
+  "optimization": {
+    "schemaVersion": "podcast-visualizer-runtime-optimization-v1",
+    "removedClasses": [
+      "mach-o-symbol-table"
+    ]
+  },
+  "files": [
+    {
+      "path": "bin/node",
+      "bytes": 96456240,
+      "sha256": "68d87c8068edc778cfddf644a3ba5a5cf7f4dd5c519f44d9a1694649b70458e1",
+      "dependencies": [
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+        "/usr/lib/libc++.1.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ]
+    },
+    {
+      "path": "LICENSE.Node",
+      "bytes": 157606,
+      "sha256": "148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5",
+      "dependencies": []
+    }
+  ]
+}

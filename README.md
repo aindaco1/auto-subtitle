@@ -1,191 +1,58 @@
-# auto-subtitle
+# Auto Subtitle
 
-auto-subtitle is a small CLI for rebuilding subtitles from a source video/audio file plus a rough SRT draft.
+A small local subtitle app for Apple Silicon, targeting macOS 15 or later. Drop a video and an SRT or ASS file, then choose **Align subtitles**. Switch to **Generate subtitles** to create captions from the audio.
 
-It is built for the ugly real-world case: the draft subtitles are partly useful, partly wrong, poorly timed, missing lines, and not cleanly split for dialogue.
+- Align detects uniform offsets and timing-rate differences, including 25↔30 conversions, before attempting detailed speech-activity alignment. Translated subtitles work without a speech model.
+- Wording stays unchanged by default. **Improve accuracy** offers conservative audio-supported spelling corrections for subtitles in the spoken language, with additional context and local dictionary checks. It is disabled for known translations.
+- **Clean up formatting** wraps long lines, combines exact continuous duplicates, and reports reading-speed problems. Turn it off to preserve imported cue structure. Existing ASS presentation is retained where the output format supports it.
+- Generate uses local Parakeet v3 through RecordSpeech. Passage-level checks flag unexpected language changes. Optional local Whisper retries repair only wording supported by two audio decodes; uncertain passages remain unchanged and are listed for review.
+- The top-right **Check for updates** button uses official GitHub releases through Sparkle. A quiet launch check looks for updates; installation requires your action.
+- **Help & diagnostics** previews and exports a privacy-filtered JSON state snapshot. Reviewed current-state, failure and crash reports can create or join an issue in this repository through the existing Dust Wave crash relay.
 
-The workflow is hybrid on purpose:
-- use ffsubsync to recover timing against the real media
-- use Whisper word timestamps to recover missing speech and pause structure
-- keep draft text when it is still better than raw ASR
-- split oversized cues into readable subtitle units
-- optionally add speaker diarization labels with pyannote
+Download **Auto Subtitle 1.0.0** from [official GitHub releases](https://github.com/aindaco1/auto-subtitle/releases/latest). The Apple Silicon app and DMG use Developer ID signing, Apple notarization and signed Sparkle updates. Recognition quality across all 25 languages, human-reviewed translation boundaries and clean minimum-hardware acceptance remain ongoing; see [validation](docs/validation.md).
 
-## What it does
+Known Generate limitation: Parakeet can emit English within Spanish dialogue. The new selective repair pass reduces this in the supplied film, but does not resolve every passage. A manual language choice guides checking and retries; it is not a guaranteed language lock. See the [investigation and repair evidence](docs/investigations/2026-09-07-spanish-language-drift.md).
 
-- extracts clean mono 16 kHz audio with ffmpeg
-- re-syncs a draft SRT with ffsubsync
-- runs Whisper and keeps word timestamps in JSON
-- merges the synced draft with Whisper timing and missing lines
-- deduplicates adjacent repeats
-- re-splits huge subtitle blocks
-- caps cue duration and cue length for readability
-- optionally runs speaker diarization and prefixes cues with speaker IDs
+## Use the app
 
-## Requirements
+1. Choose Align or Generate and drop your files into the window. Select an audio track if there is more than one.
+2. Choose SRT or ASS. Improve accuracy is optional and off by default.
+3. Run, review the result summary, and save a new subtitle file. Originals cannot be overwritten.
 
-Core tools:
-- Python 3.10+
-- ffmpeg
-- ffprobe
-- ffsubsync
-- whisper CLI
+Timing-only alignment needs no model. For Generate or Improve, open **Speech model**, choose **Find existing**, or import a compatible Core ML model. If none exists, Download installs the pinned, size- and SHA-256-verified model (about 483 MB). No account or token is required. Audio, subtitles, and recognition remain local after setup.
 
-Optional diarization:
-- a Hugging Face token accepted by pyannote
-- `pip install 'auto-subtitle[diarization]'`
+Generate’s **Options → Repair language mismatches** is on by default. **Speech models** can find, import, or download the optional Whisper large-v3-turbo model (about 1.62 GB). Likely app storage, MacWhisper, whisper.cpp, Hugging Face and Downloads locations are searched; existing files must match the pinned publisher size and SHA-256 before reuse. Both models can be downloaded directly through the app without another transcription app installed. No model downloads happen automatically. Without this model, Generate still flags suspicious passages and preserves their wording. Genuine spoken language switches are never automatically translated.
 
-## Install
+The app retains local checkpoints for retry. The **Local report** contains subtitle text and paths; use **Help & diagnostics → Export JSON** for a shareable report. Sending to GitHub is an explicit action after reviewing that JSON. See [privacy and reporting](docs/privacy.md).
 
-Use a normal Python install or virtualenv. On macOS, avoid Apple's system Python for editable installs.
+## Develop
 
-From the repo root:
+```sh
+git submodule update --init --recursive
+python3 scripts/prepare-runtime.py /path/to/podcast-visualizer/runtime/macos-arm64 /path/to/cpython-3.11.15-macos-aarch64-none
+npm test
+swift test --package-path macos
+bash scripts/build-app.sh
+```
 
-```bash
+The preparation script reuses only verified Node/FFmpeg files and prepares a separate locked Python runtime. The build bundles every executable; users need no Homebrew, Node, Python, or developer tools. It writes the app outside iCloud to keep signatures stable. [Build and packaging details](docs/development.md).
+
+The optional Python CLI delegates to the same engine:
+
+```sh
 python3 -m pip install -e .
+auto-subtitle movie.mkv draft.srt --output movie.aligned.srt
+auto-subtitle movie.mkv --generate --format ass --output movie.subtitles.ass
 ```
 
-If you want optional diarization support too:
+The former Whisper workflow remains under `auto-subtitle legacy …`; its [legacy documentation](docs/legacy-cli.md) does not describe the new app.
 
-```bash
-python3 -m pip install -e '.[diarization]'
-```
+## Project guides
 
-If your shell has not refreshed PATH yet, use the module form:
-
-```bash
-python3 -m auto_subtitle --help
-```
-
-## Basic usage
-
-```bash
-auto-subtitle movie.mkv draft.srt --output-dir out
-```
-
-Equivalent fallback:
-
-```bash
-python3 -m auto_subtitle movie.mkv draft.srt --output-dir out
-```
-
-Force a language explicitly:
-
-```bash
-auto-subtitle movie.mkv draft.srt -l es-PE --output-dir out
-```
-
-Use long-media chunking:
-
-```bash
-auto-subtitle movie.mkv draft.srt --chunk-seconds 600 --chunk-overlap-seconds 1 --output-dir out
-```
-
-Reuse existing artifacts instead of rerunning every stage:
-
-```bash
-auto-subtitle movie.mkv draft.srt \
-  --output-dir out \
-  --skip-audio-extract \
-  --skip-sync \
-  --skip-whisper
-```
-
-## Speaker diarization
-
-The optional speaker backend is pyannote.
-
-1. Install extras:
-
-```bash
-python3 -m pip install -e '.[diarization]'
-```
-
-2. Export a Hugging Face token:
-
-```bash
-export HF_TOKEN=your_token_here
-```
-
-3. Run with diarization enabled:
-
-```bash
-auto-subtitle movie.mkv draft.srt \
-  --output-dir out \
-  --speaker-mode pyannote \
-  --speaker-labels
-```
-
-That writes an RTTM file alongside the rebuilt subtitle output and prefixes cues like:
-
-```text
-[SPEAKER_00] Va a tener que venir, capitán.
-[SPEAKER_01] ¿Qué pasa?
-```
-
-Important: this is useful for separation and review, but it is still a best-effort automated pass. You should expect to spot-check dialogue-heavy scenes.
-
-## Output files
-
-For an input `movie.mkv` and a draft `draft.srt`, the tool writes files like:
-
-- `movie.clean.wav`
-- `draft.synced.srt`
-- `movie.clean.json`
-- `movie.clean.srt`
-- `movie.speakers.rttm` when diarization is enabled
-- `movie.improved.srt`
-- `movie.review.csv`
-
-## Language handling
-
-The CLI accepts:
-- Whisper language names
-- short codes like `es`, `fr`, `pt`
-- regional variants like `es-PE`, `pt-BR`
-- `auto` for Whisper language detection
-
-## Repo layout
-
-```text
-auto-subtitle/
-├── pyproject.toml
-├── README.md
-├── src/
-│   └── auto_subtitle/
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── cli.py
-│       ├── diarize.py
-│       └── workflow.py
-└── tests/
-    └── test_workflow.py
-```
-
-## Development
-
-Run tests:
-
-```bash
-PYTHONPATH=src pytest tests/test_workflow.py -q
-```
-
-Run help:
-
-```bash
-python3 -m auto_subtitle --help
-```
-
-## Limits
-
-This tool improves timing, segmentation, and recovery of missing lines, but it does not magically solve every ASR problem.
-
-Weak spots still include:
-- heavy slang or dialect that Whisper hears badly
-- overlapping speech
-- songs, chants, crowd noise, and off-screen dialogue
-- scenes where diarization segments are right but the wording still needs human cleanup
-
-## License
-
-MIT
+- [Implementation plan and status](docs/implementation-plan.md)
+- [Architecture and shared-code ownership](docs/architecture.md)
+- [Subtitle quality policy and sources](docs/subtitle-quality-policy.md)
+- [Validation evidence and remaining acceptance](docs/validation.md)
+- [Signed release and updater runbook](docs/release-runbook.md)
+- [Privacy and crash reporting](docs/privacy.md)
+- [Third-party notices](THIRD_PARTY_NOTICES.md)

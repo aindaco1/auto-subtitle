@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/ggml-org/whisper.cpp",
+  "tag": "b4938",
+  "version": "1.9.3",
+  "revision": "371b5a7561823ab2bb32142d2751e35e7534727b",
+  "target": "macOS 15 arm64",
+  "linkage": "Static whisper/ggml; system frameworks only; embedded Metal library",
+  "buildScript": "scripts/build-whisper.sh"
+}

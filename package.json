@@ -1,0 +1,12 @@
+{
+  "name": "auto-subtitle",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test engine/tests/*.test.mjs",
+    "start": "node engine/cli.mjs",
+    "build:app": "bash scripts/build-app.sh"
+  }
+}
