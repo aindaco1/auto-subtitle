@@ -27,7 +27,12 @@ jobs:
       - run: npm test
       - run: uv run --no-project --python 3.11 --with pytest --with-requirements requirements-sync.lock python -m pytest -q
   macos:
-    runs-on: macos-15
+    name: ${{ matrix.os == 'macos-15' && 'macos' || 'Xcode 27 compatibility' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, xcode-27]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -35,10 +40,21 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Select stable Xcode
+        if: matrix.os == 'macos-15'
         run: |
           sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
           xcodebuild -version
           test "$(xcodebuild -version | head -n 1)" = "Xcode 26.3"
+      - name: Record host and toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+          xcrun --show-sdk-version
+          if [[ "${{ matrix.os }}" == "xcode-27" ]]; then
+            xcodebuild -version | head -n 1 | grep -E '^Xcode 27([. ]|$)'
+          fi
+
       - name: Build pinned local Whisper runtime
         run: bash scripts/build-whisper.sh
       - run: swift test --package-path macos
