@@ -1,4 +1,30 @@
-# Auto Subtitle 1.0.1
+# Changelog
+
+## Auto Subtitle 1.0.2
+
+- Adopt Platform's native speech and Apple generation modules. Preserve verbatim
+  subtitle policies, helper contracts, model verification, and FluidAudio 0.15.5.
+  Build the same formatting helper through SwiftPM for the app and Jev evaluations.
+
+- Format short continuous phrases before mapping punctuation back to each caption's
+  exact words and timestamps, so a caption boundary need not become a sentence ending.
+- Keep already capitalized, punctuated captions as written. Reject edits that remove
+  or move existing punctuation, and retain standard output when a proposal is unsafe.
+- Recover unsafe surface drafts with one selection among original-word options, and
+  reject unrequested ALL CAPS while preserving existing acronym and name casing.
+- Require calibrated Jev semantic checks together with exact punctuation and phrase
+  checks before release; no private subtitles are sent to the evaluator.
+- Validate both word and token timing evidence, reject invalid confidence values,
+  and require strong confidence in the second recognition pass before applying
+  spelling corrections or recovering missing dialogue.
+- Bind formatting retry caches to the available Apple model metadata as well as the
+  helper and OS. Expand public English/Spanish Jev tests for conditions, questions,
+  negation and sentence continuations. Jev remains development-only.
+
+These changes strengthen preservation and correction safeguards; they do not
+upgrade the speech model or establish recognition accuracy across films.
+
+## Auto Subtitle 1.0.1
 
 - Improve English and Spanish line breaks with on-device Apple Intelligence and grammatical boundary checks, including translated subtitles. Requires macOS 26+ and an available Apple model; standard wrapping remains available on macOS 15+.
 - Polish punctuation and capitalization automatically with cleanup when Apple Intelligence is available. Words, numbers and timestamps are preserved, and proposed changes are recorded in the Local report for review.

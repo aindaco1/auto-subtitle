@@ -10,8 +10,9 @@ macos_bin="$(swift build --package-path macos --scratch-path "$build_dir/swift-m
 speech_bin="$(swift build --package-path speech-sidecar --scratch-path "$build_dir/swift-speech" -c release --show-bin-path)"
 cp "$speech_bin/auto-subtitle-speech" runtime/macos-arm64/bin/auto-subtitle-speech.new
 mv runtime/macos-arm64/bin/auto-subtitle-speech.new runtime/macos-arm64/bin/auto-subtitle-speech
-xcrun swiftc -O -parse-as-library -target arm64-apple-macos15.0 formatting-sidecar/AppleSubtitleFormatter.swift -o "$build_dir/auto-subtitle-format"
-cp "$build_dir/auto-subtitle-format" runtime/macos-arm64/bin/auto-subtitle-format.new
+swift build --package-path formatting-sidecar --scratch-path "$build_dir/swift-formatting" -c release --product auto-subtitle-format
+formatting_bin="$(swift build --package-path formatting-sidecar --scratch-path "$build_dir/swift-formatting" -c release --show-bin-path)"
+cp "$formatting_bin/auto-subtitle-format" runtime/macos-arm64/bin/auto-subtitle-format.new
 mv runtime/macos-arm64/bin/auto-subtitle-format.new runtime/macos-arm64/bin/auto-subtitle-format
 runtime/macos-arm64/bin/auto-subtitle-speech manifest > resources/model-manifests/parakeet-v3.json
 bash scripts/generate-icon.sh
@@ -28,6 +29,7 @@ for name in engine resources runtime; do
 done
 ditto --norsrc --noextattr shared/dust-wave-platform/packages/timed-text "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/timed-text"
 cp shared/dust-wave-platform/LICENSE "$app/Contents/Resources/engine-root/shared/dust-wave-platform/LICENSE"
+cp shared/dust-wave-platform/native/LICENSE.Record "$app/Contents/Resources/engine-root/shared/dust-wave-platform/LICENSE.Record"
 cp THIRD_PARTY_NOTICES.md "$app/Contents/Resources/engine-root/THIRD_PARTY_NOTICES.md"
 python3 scripts/verify-bundle.py "$app"
 # Local build: an ad-hoc signature is sufficient. Distribution signing is separate.

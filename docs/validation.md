@@ -2,6 +2,46 @@
 
 Recorded September 7–23, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each section distinguishes local, provider and installed-artifact evidence. Clean macOS 15 and human subtitle acceptance remain separate.
 
+## 1.0.2 candidate checks — September 23, 2026
+
+- 76 Node, 29 Python and six app Swift tests pass. Both native helpers build from
+  Platform `0affb6c5652611b87947bd87762d8aa17d35ea32`; speech keeps FluidAudio
+  0.15.5. Source/model manifests, lexical and timestamp preservation, provider
+  isolation, malformed evidence, cache binding and cancellation are covered.
+- All 44 fixed public Jev controls pass. The final 23-case candidate passes exact
+  preservation, literal formatting, native completion and every Jev requirement at
+  the unchanged 0.10 threshold. Bounded original-word recovery fixes the Spanish
+  synonym proposal; fresh cases exposed and fixed unwanted ALL CAPS. Literal
+  assertions replace the erroneous comma/period judgment and vague phrase rule,
+  with broken controls still rejected. See [evidence](jev-apple-formatting.md).
+- The built bundle generated two English and two Spanish captions from fresh public
+  synthetic speech. Original audio SHA-256 values are unchanged. Cleanup off/on
+  preserves all recognized words and every timestamp pair; cleanup off makes no
+  Apple requests. The English recognizer spells the spoken name Ana as Anna,
+  illustrating that this is pipeline evidence, not improved recognition accuracy.
+- The final signed bundle reproduces all 23 Jev-evaluated outputs exactly. Its
+  English and Spanish audio pipelines preserve the original audio and match the
+  earlier recognized words and timestamps. Developer ID signatures, both Apple
+  notarizations, staples, Gatekeeper, mounted image and runtime checks pass.
+- Native Generate/Save exports two English captions. Translated ASS alignment/Save
+  retains all three Spanish cues, timing, styles, comment and italics; uncertain
+  short-sample timing is explicitly reported. Original file hashes are unchanged.
+- Diagnostic preview shows 1.0.2/build 10002 without private fields. Diagnostic
+  export remains blocked by the native Save panel staying disabled under automation;
+  this is not counted as a pass. Public publication and updater acceptance are held.
+
+[CI 35893342932](https://github.com/aindaco1/auto-subtitle/actions/runs/35893342932)
+passed all three lanes for implementation `158d0cfbf8dc80771bff895a021a58759963a835`.
+All five assets are staged in the GitHub draft release and their provider digests
+match local SHA-256 values. Final DMG:
+`150ca6661e06669209a83c0707e4b2ba586000a212022ca0888e5b25d77e6695`.
+The public latest release remains 1.0.1. A verified 1.0.1 rollback copy is retained
+outside iCloud for the eventual real Sparkle update test.
+
+Evidence is under `artifacts/evaluation/release-1.0.2-*` and
+`artifacts/releases/1.0.2/`; preserved sync copies and failed experiments remain
+under `artifacts/sync-copies-before-1.0.2/`.
+
 ## 1.0.1 release checks — September 23, 2026
 
 - 65 Node, six Swift and 29 Python tests pass on Apple Silicon/macOS 27. Shared production/evaluation policy covers exact word/timing preservation, automatic cleanup punctuation, unavailable-model fallback, malformed responses, cancellation and verified caches. The public Jev calibration has 28/28 labeled passes. Its targeted 13-case final evaluation has 12 passes and one review, with no semantic failures; see [scope and raw-evidence locations](jev-apple-formatting.md). This is not a general quality or speed benchmark.

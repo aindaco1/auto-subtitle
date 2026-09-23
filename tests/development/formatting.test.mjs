@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { fixtures, fixtureHash, calibrationHash, protocolHash, digest, baseline, applyProposal, evaluateOutput, prepareJev, sameWords, choices, summarize } from '../../scripts/lib/subtitle-evaluation.mjs';
+import { fixtures, fixtureHash, calibrationHash, protocolHash, digest, baseline, applyProposal, evaluateOutput, prepareJev, sameWords, choices, summarize, literalFailures } from '../../scripts/lib/subtitle-evaluation.mjs';
 import { evaluateJevCases } from '../../shared/dust-wave-platform/packages/test-core/src/jev.js';
 import { safeWordingCandidate, dictionaryAllowsCorrection } from '../../engine/recognition.mjs';
 const report=()=>({schema:'auto-subtitle.formatting.v1',fixtureHash,provider:'deterministic',cases:fixtures.map(f=>{
@@ -75,4 +75,24 @@ test('punctuation retains deterministic wrapping when only one valid break exist
   const result=applyProposal({format:'srt',language:'en',punctuation:true},cue,{schema:1,...request,status:'complete',text:source+'.'},request);
   assert.equal(choices(source+'.').length,1);
   assert.equal(result.cue.text,'A'.repeat(40)+'\n'+'b'.repeat(40)+'.');
+});
+
+
+test('literal formatting checks accept comma continuations and reject sentence stops and broken phrases',()=>{
+  const continuation=fixtures.find(f=>f.id==='english-continuation');
+  for(const mark of [',',';',':','']) assert.deepEqual(literalFailures(continuation,[{text:'If Ana comes'+mark},{text:'we can leave together.'}]),[]);
+  for(const mark of ['.','!','?','…','.”']) assert.equal(literalFailures(continuation,[{text:'If Ana comes'+mark}]).length,1);
+  const phrase=fixtures.find(f=>f.id==='english-phrase');
+  assert.deepEqual(literalFailures(phrase,[{text:'We should meet outside the old station\nafter the last train.'}]),[]);
+  assert.ok(literalFailures(phrase,[{text:'We should meet outside the old\nstation after the last train.'}]).length);
+  assert.ok(literalFailures(fixtures.find(f=>f.id==='spanish-question'),[{text:'No viene Ana.'}]).length===2);
+  assert.ok(literalFailures(fixtures.find(f=>f.id==='spanish-negation'),[{text:'no quiero salir todavía'}]).length===2);
+});
+test('missing Jev cases or requirement findings cannot pass even if complete is asserted',()=>{
+  const value=report();value.cases.forEach(c=>c.formattingFailures=[]);
+  const cases=fixtures.map(f=>({id:f.id,result:{findings:Object.fromEntries(Object.keys(f.requirements).map(k=>[k,{decision:'pass'}]))}}));
+  assert.equal(summarize(value,{complete:true,cases}).passed,true);
+  assert.equal(summarize(value,{complete:true,cases:cases.slice(1)}).passed,false);
+  cases[0].result.findings={};
+  assert.equal(summarize(value,{complete:true,cases}).passed,false);
 });

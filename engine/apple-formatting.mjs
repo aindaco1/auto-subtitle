@@ -28,7 +28,7 @@ export async function appleFormatting(cues,{directory,format='srt',punctuation=t
     const rows=new Array(requests.length), pending=[];
     for(const [index,request] of requests.entries()) {
       signal.throwIfAborted();
-      const key=digest({request:{...request,id:null},engineHash,os:status.os??os.release(),policy:1});
+      const key=digest({request:{...request,id:null},engineHash,os:status.os??os.release(),model:status.model??null,contextSize:status.contextSize??null,policy:2});
       const file=path.join(cache,key+'.json');
       try {
         const saved=JSON.parse(await readFile(file,'utf8'));

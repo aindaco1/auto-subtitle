@@ -8,8 +8,9 @@ The app makes one quiet launch check and retains a top-right button and applicat
 
 1. Update `package.json`, `pyproject.toml`, the Python package version, `macos/Info.plist`, and `CHANGELOG.md`. Increase the numeric bundle build monotonically.
 2. Run `npm test`, the locked Python tests and `swift test --package-path macos --scratch-path "$HOME/Library/Caches/AutoSubtitleTests"`. Run the relay's `npm run check` if its contract or adapter changes.
-3. Run `bash scripts/build-app.sh`. It builds outside iCloud and bundles Sparkle, the pinned speech/media runtimes, the availability-gated Apple formatter and notices. No model weights are included.
-4. Run native import, generation/alignment, Save and reviewed diagnostic export. Verify resulting files and originals on disk. For reporting changes, exercise explicit synthetic GitHub tests only when authorized and close the resulting test issues.
+3. For 1.0.2+, require the complete public native corpus plus live Jev evaluation to pass with the committed calibration policy. Every case and requirement must be present, all literal checks must pass, and no native fallback or rejected final proposal is accepted. Keep failed evidence; do not lower the 0.10 threshold or retry unchanged requests to obtain a favorable result.
+4. Run `bash scripts/build-app.sh`. It builds outside iCloud and bundles Sparkle, the pinned speech/media runtimes, the availability-gated Apple formatter and notices. No model weights are included.
+5. Run native import, generation/alignment, Save and reviewed diagnostic export. Verify resulting files and originals on disk. For reporting changes, exercise explicit synthetic GitHub tests only when authorized and close the resulting test issues.
 
 ## Sign and notarize
 
@@ -18,8 +19,8 @@ The app makes one quiet launch check and retains a top-right button and applicat
 ```sh
 python3 scripts/release.py sign "$HOME/Library/Caches/AutoSubtitleBuild/Auto Subtitle.app"
 python3 scripts/release.py package "$HOME/Library/Caches/AutoSubtitleBuild/Auto Subtitle.app"
-python3 scripts/release.py verify dist/Auto-Subtitle-1.0.1-arm64.dmg
-python3 scripts/release.py appcast dist/Auto-Subtitle-1.0.1-arm64.dmg
+python3 scripts/release.py verify dist/Auto-Subtitle-1.0.2-arm64.dmg
+python3 scripts/release.py appcast dist/Auto-Subtitle-1.0.2-arm64.dmg
 ```
 
 Use the current version in the last two commands. The signer inventories nested Mach-O code, signs it inside-out with hardened runtime, preserves Sparkle Downloader's entitlements, and gives only Node the required JIT entitlement. Do not use `codesign --deep` to sign a release; `--deep` is used only for verification.

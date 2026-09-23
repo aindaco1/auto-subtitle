@@ -1,5 +1,8 @@
 # Architecture
 
+See [shared native migration](shared-native-migration.md) for Platform ownership,
+characterization, coordinated updates and rollback.
+
 SwiftUI owns one window, file panels, progress, cancellation, and the diagnostics preview. Every operation calls the same bundled Node engine with structured JSON. The Python CLI is an adapter to that engine, not a second implementation.
 
 The native update controller delegates feed retrieval, Ed25519 archive verification, replacement and relaunch to pinned Sparkle. Its shared busy state blocks checks during processing, model setup and report delivery, and postpones accepted installation until those operations finish. File import/export share a sheet presenter attached to the active window or nested diagnostics/model sheet.
@@ -16,10 +19,10 @@ The native update controller delegates feed retrieval, Ed25519 archive verificat
 | `engine/formatting-policy.mjs` | Shared app/evaluator candidate and word-preservation checks |
 | `engine/apple-formatting.mjs` | Local helper transport, availability, bounded batches, cancellation and verified job caches |
 | `formatting-sidecar/AppleSubtitleFormatter.swift` | NaturalLanguage phrase boundaries and optional Foundation Models selection/surface edits |
-| `shared/dust-wave-platform/packages/timed-text` | Direct word grouping and recognition-confidence dependency; platform pinned at `816da7b52ed346025f5bbe3a7a420e9ad7c4a815`; timed-text files unchanged from the previous pin |
-| `shared/record/Sources/RecordSpeech` | Direct Swift dependency for Parakeet and model verification; pinned at `8897446b348271d5d548278fa6f6a91053d9bd6d` |
-| `speech-sidecar` | Narrow RecordSpeech bridge without mandatory diarization; manifest generation and local NaturalLanguage identification |
-| `engine/models.mjs` | App-specific discovery and verified atomic installation; Parakeet manifest generated from Record, pinned Whisper inventory |
+| `shared/dust-wave-platform/packages/timed-text` | Direct word grouping and recognition-confidence dependency; platform pinned at `0affb6c5652611b87947bd87762d8aa17d35ea32`; timed-text files unchanged from the previous pin |
+| `shared/dust-wave-platform/native` | Shared local speech/model verification and Apple generation mechanics; pinned by gitlink |
+| `speech-sidecar` | Narrow DustWaveSpeech bridge without mandatory diarization; manifest generation and local NaturalLanguage identification |
+| `engine/models.mjs` | App-specific discovery and verified atomic installation; Parakeet manifest generated from DustWaveSpeech, pinned Whisper inventory |
 | `resources/parakeet-capabilities.json` | Recognition language inventory shared by Swift and Node |
 | `engine/diagnostics-contract.mjs` | Allowlisted public report schema and canonical fingerprint shared with the existing relay |
 
@@ -37,6 +40,8 @@ Improve requires confidently matching languages and accepted timing. Suspect rec
 
 FFmpeg networking is disabled and model loading is forced offline. Child processes use argument arrays, bounded output, absolute bundled executables, and process-group cancellation. Current-state and crash diagnostics are separately projected; private change audits are never submitted by the reporting command.
 
+Punctuation uses at most three continuous, compatible captions and 500 characters per phrase. Reconstruction assigns only the original ordered words to each cue; every cue retains its timing. Existing punctuation cannot be removed or moved. Already capitalized, sentence-terminated captions bypass surface generation. Invalid proposals retain source text and report partial formatting. Token arrays, ordering, timing bounds and confidence are validated alongside words, including cached recognition; Improve requires strong evidence in both recognition passes.
+
 Development evaluation uses `@dustwave/test-core/jev` 0.3.0 from the merged Platform PR #46 pin. `scripts/check-formatting.mjs` owns public synthetic fixtures, calibration and evidence storage. Scripts, fixture sources and Test Core are excluded from the app. The product and evaluator share the same formatting policy and Swift helper; only transport differs. Jev never runs in `runJob()`.
 
-After deterministic cleanup, the helper identifies each subtitle's language independently of audio, protects named/grammatical units, and selects one of at most twelve source-derived layouts. It cannot generate new words or timings for layout. Punctuation edits must retain ordered words, accents, numbers and protected symbols; changes remain review material. Protected ASS, speaker turns and lyrics bypass inference. Unavailable models, unsupported languages, invalid output and timeouts retain standard output with a notice. Cleanup off skips the helper entirely. Completed responses are cached within the existing private job directory, keyed by source/options, helper hash and OS, with content-hash validation. Model revisions can vary within an OS; caches are retry aids, not cross-device reproducibility guarantees. See [evaluation and scope](jev-apple-formatting.md).
+After deterministic cleanup, the helper identifies each subtitle's language independently of audio, protects named/grammatical units, and selects one of at most twelve source-derived layouts. It cannot generate new words or timings for layout. Punctuation edits must retain ordered words, accents, numbers and protected symbols; changes remain review material. Protected ASS, speaker turns and lyrics bypass inference. Unavailable models, unsupported languages, invalid output and timeouts retain standard output with a notice. Cleanup off skips the helper entirely. Completed responses are cached within the existing private job directory, keyed by source/options, helper hash, OS and available model metadata, with content-hash validation. Model revisions can vary within an OS; caches are retry aids, not cross-device reproducibility guarantees. See [evaluation and scope](jev-apple-formatting.md).

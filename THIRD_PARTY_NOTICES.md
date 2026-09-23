@@ -4,8 +4,8 @@ Full notices ship in `resources/licenses/` and in the bundled runtime's package 
 
 | Component | Version / revision | License |
 |---|---|---|
-| RecordSpeech | 8897446b348271d5d548278fa6f6a91053d9bd6d | MIT |
-| Dust Wave timed-text | 0.11.1; platform commit 816da7b52ed346025f5bbe3a7a420e9ad7c4a815 | MIT |
+| Dust Wave native speech and Apple adapters | Exact `shared/dust-wave-platform` gitlink | MIT, retaining original Record attribution |
+| Dust Wave timed-text | 0.11.1; same exact Platform gitlink | MIT |
 | FluidAudio | 0.15.5, 19600a485baa4998812e4654b70d2bab8f2c9949 | Apache-2.0 |
 | Sparkle updater | 2.9.6, locked in macos/Package.resolved | MIT, resources/licenses/Sparkle-LICENSE.txt |
 | Node.js | 24.19.0 | Node contributors license, runtime/LICENSE.Node |
@@ -15,7 +15,7 @@ Full notices ship in `resources/licenses/` and in the bundled runtime's package 
 | WebRTC VAD Python wrappers | 2.0.10 / wheels 2.0.14 | MIT and bundled WebRTC notices |
 | NumPy and other Python dependencies | requirements-sync.lock | bundled dist-info license files |
 
-FluidAudio's fastcluster/VBx notices and the resolved Swift dependency closure's Sparkle/ArgumentParser notices are retained conservatively, including dependencies whose unused code the linker may remove. The speech executable directly uses RecordSpeech; no speaker-diarization model is bundled.
+FluidAudio's fastcluster/VBx notices and previously included Sparkle/ArgumentParser notices are retained conservatively. The speech executable directly uses DustWaveSpeech; no speaker-diarization model is bundled. Platform and original Record MIT texts are included beside the bundled shared package.
 
 The app reuses Podcast Visualizer's exact verified Node and FFmpeg runtime. Source URLs, source archive hashes, build flags and pre-signing binary hashes are recorded in the runtime manifests. FFmpeg disables networking, GPL and nonfree components. Its bundled dynamic text-rendering libraries retain their upstream licenses in the runtime notice directory. For redistribution, retain corresponding FFmpeg/LGPL library source and rebuild instructions from Podcast Visualizer's runtime build scripts; do not treat an ad-hoc development app as a distribution compliance artifact.
 
