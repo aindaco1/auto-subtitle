@@ -25,6 +25,7 @@ jobs:
           version: '0.11.7'
           python-version: '3.11'
       - run: npm test
+      - run: npm run test:quality
       - run: uv run --no-project --python 3.11 --with pytest --with-requirements requirements-sync.lock python -m pytest -q
   macos:
     name: ${{ matrix.os == 'macos-15' && 'macos' || 'Xcode 27 compatibility' }}
@@ -61,6 +62,8 @@ jobs:
       - name: Build pinned local Whisper runtime
         run: bash scripts/build-whisper.sh
       - run: swift test --package-path macos
+      - name: Type-check the Apple formatting helper
+        run: xcrun swiftc -typecheck -parse-as-library -target arm64-apple-macos15.0 formatting-sidecar/AppleSubtitleFormatter.swift
       - run: swift build --package-path speech-sidecar -c release --product auto-subtitle-speech
       - name: Verify generated model manifest
         run: |

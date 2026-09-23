@@ -68,6 +68,23 @@ test('Cleanup off preserves original formatting and separate cues',()=>{
   const input=[cue('1',0,1000,'A\nline.'),cue('2',1000,2000,'A\nline.')];
   assert.deepEqual(cleanCues(input,{cleanup:false}).cues,input);
 });
+test('Long duplicate cleanup is idempotent across wrapping in SRT and ASS',()=>{
+  const text='We should meet outside the old station after the last train.';
+  for(const format of ['srt','ass']) {
+    const once=cleanCues([cue('1',0,4000,text),cue('2',4000,8000,text)],{format});
+    assert.equal(once.cues.length,1);
+    assert.equal(once.cues[0].end,8000);
+    assert.deepEqual(once.cues[0].lineage,['1','2']);
+    assert.deepEqual(cleanCues(once.cues,{format}).cues,once.cues);
+  }
+});
+test('Soft wrapping cannot hide excessive reading speed',()=>{
+  for(const format of ['srt','ass']) {
+    const text=format==='srt'?'1234567890\n12345678901':'1234567890\\N12345678901';
+    const result=cleanCues([cue('1',0,1050,text)],{format,language:'en',cleanup:false});
+    assert.ok(result.warnings[0].issues.some(issue=>issue.startsWith('Reading speed')));
+  }
+});
 test('Wrapping preserves lexical content and uses at most two lines',()=>{
   const text='A long subtitle can wrap at a natural phrase boundary without changing any of its words.';
   const result=wrap(text);assert.equal(result.replace('\n',' '),text);assert.equal(result.split('\n').length,2);

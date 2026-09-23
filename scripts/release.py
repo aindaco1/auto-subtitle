@@ -159,7 +159,8 @@ def verify_contents(image):
             run('hdiutil', 'detach', mount)
 
 def appcast(image):
-    tool = ROOT / 'macos/.build/artifacts/sparkle/Sparkle/bin/generate_appcast'
+    build = Path(os.environ.get('AUTO_SUBTITLE_BUILD_DIR', str(Path.home() / 'Library/Caches/AutoSubtitleBuild')))
+    tool = build / 'swift-macos/artifacts/sparkle/Sparkle/bin/generate_appcast'
     version = json.loads((ROOT / 'package.json').read_text())['version']
     with tempfile.TemporaryDirectory(prefix='auto-subtitle-appcast-', dir='/private/tmp') as temporary:
         folder = Path(temporary)

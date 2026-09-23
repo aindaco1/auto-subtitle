@@ -1,5 +1,6 @@
 """Validate packaged paths and Mach-O dependencies without developer PATH fallbacks."""
 import os
+import json
 import plistlib
 import subprocess
 import sys
@@ -22,9 +23,11 @@ for file in app.rglob('*'):
             dep=line.strip().split(' (')[0]
             if dep in identifiers: continue  # LC_ID_DYLIB is not a loaded dependency.
             assert dep.startswith(('/System/','/usr/lib/','@')),f'Unbundled dependency {file}: {dep}'
-for tool in ['node','ffmpeg','ffprobe','auto-subtitle-speech','whisper-cli']:
+for tool in ['node','ffmpeg','ffprobe','auto-subtitle-speech','auto-subtitle-format','whisper-cli']:
     assert os.access(root/'runtime/macos-arm64/bin'/tool,os.X_OK)
 subprocess.run([str(root/'runtime/macos-arm64/bin/whisper-cli'),'--version'],check=True,env={'PATH':'/usr/bin:/bin','HOME':os.path.expanduser('~')})
+format_status=json.loads(subprocess.check_output([str(root/'runtime/macos-arm64/bin/auto-subtitle-format'),'status'],text=True))
+assert format_status['schema']==1 and format_status['status'] in ['available','unavailable']
 python=root/'runtime/macos-arm64/python/bin/python3.11'
 subprocess.run([str(python),'-I','-c','import numpy,webrtcvad;from ffsubsync.aligners import FFTAligner'],check=True,env={'PATH':'/usr/bin:/bin','HOME':os.path.expanduser('~')})
 print('Bundle structure, local runtime imports, symlinks and Mach-O dependencies verified.')

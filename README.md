@@ -4,19 +4,20 @@ A small local subtitle app for Apple Silicon, targeting macOS 15 or later. Drop 
 
 - Align detects uniform offsets and timing-rate differences, including 25↔30 conversions, before attempting detailed speech-activity alignment. Translated subtitles work without a speech model.
 - Wording stays unchanged by default. **Improve accuracy** offers conservative audio-supported spelling corrections for subtitles in the spoken language, with additional context and local dictionary checks. It is disabled for known translations.
-- **Clean up formatting** wraps long lines, combines exact continuous duplicates, and reports reading-speed problems. Turn it off to preserve imported cue structure. Existing ASS presentation is retained where the output format supports it.
+- **Clean up formatting** wraps long lines, combines exact continuous duplicates, and reports reading-speed problems. Turn it off to preserve imported cue structure. On macOS 26+ with Apple Intelligence available, English and Spanish captions get phrase-aware line breaks. Other systems retain standard wrapping. Existing ASS presentation is retained where the output format supports it.
+- Cleanup also polishes punctuation and capitalization automatically when Apple Intelligence is available. It preserves words and timing, including translated captions. Review changes in the Local report before saving.
 - Generate uses local Parakeet v3 through RecordSpeech. Passage-level checks flag unexpected language changes. Optional local Whisper retries repair only wording supported by two audio decodes; uncertain passages remain unchanged and are listed for review.
 - The top-right **Check for updates** button uses official GitHub releases through Sparkle. A quiet launch check looks for updates; installation requires your action.
 - **Help & diagnostics** previews and exports a privacy-filtered JSON state snapshot. Reviewed current-state, failure and crash reports can create or join an issue in this repository through the existing Dust Wave crash relay.
 
-Download **Auto Subtitle 1.0.0** from [official GitHub releases](https://github.com/aindaco1/auto-subtitle/releases/latest). The Apple Silicon app and DMG use Developer ID signing, Apple notarization and signed Sparkle updates. Recognition quality across all 25 languages, human-reviewed translation boundaries and clean minimum-hardware acceptance remain ongoing; see [validation](docs/validation.md).
+Download **Auto Subtitle 1.0.1** from [official GitHub releases](https://github.com/aindaco1/auto-subtitle/releases/latest). The Apple Silicon app and DMG use Developer ID signing, Apple notarization and signed Sparkle updates. Recognition quality across all 25 languages, human-reviewed translation boundaries and clean minimum-hardware acceptance remain ongoing; see [validation](docs/validation.md).
 
 Known Generate limitation: Parakeet can emit English within Spanish dialogue. The new selective repair pass reduces this in the supplied film, but does not resolve every passage. A manual language choice guides checking and retries; it is not a guaranteed language lock. See the [investigation and repair evidence](docs/investigations/2026-09-07-spanish-language-drift.md).
 
 ## Use the app
 
 1. Choose Align or Generate and drop your files into the window. Select an audio track if there is more than one.
-2. Choose SRT or ASS. Improve accuracy is optional and off by default.
+2. Choose SRT or ASS. Improve accuracy is optional and off by default. Formatting cleanup defaults on and can be disabled under Options.
 3. Run, review the result summary, and save a new subtitle file. Originals cannot be overwritten.
 
 Timing-only alignment needs no model. For Generate or Improve, open **Speech model**, choose **Find existing**, or import a compatible Core ML model. If none exists, Download installs the pinned, size- and SHA-256-verified model (about 483 MB). No account or token is required. Audio, subtitles, and recognition remain local after setup.
@@ -53,6 +54,7 @@ The former Whisper workflow remains under `auto-subtitle legacy …`; its [legac
 - [Architecture and shared-code ownership](docs/architecture.md)
 - [Subtitle quality policy and sources](docs/subtitle-quality-policy.md)
 - [Validation evidence and remaining acceptance](docs/validation.md)
+- [Jev testing and Apple formatting](docs/jev-apple-formatting.md)
 - [Signed release and updater runbook](docs/release-runbook.md)
 - [Privacy and crash reporting](docs/privacy.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)

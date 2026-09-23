@@ -70,8 +70,9 @@ struct MainWindow: View {
                     } else { Text("Create subtitles in the spoken language using local Parakeet recognition.").font(.callout).foregroundStyle(.secondary) }
                     DisclosureGroup("Options", isExpanded: $options) {
                         VStack(alignment: .leading, spacing: 12) {
+                            Toggle("Clean up formatting", isOn: $model.cleanup).help("Uses Apple Intelligence for English/Spanish line breaks, punctuation and capitalization when available. Review changes before saving.")
+                            Text("Cleanup may adjust line breaks, punctuation and capitalization. Words stay the same; review changes before saving.").font(.caption).foregroundStyle(.secondary)
                             if model.mode == "align" {
-                                Toggle("Clean up formatting", isOn: $model.cleanup)
                                 Toggle("Subtitles are a translation", isOn: $model.translated).onChange(of: model.translated) { _, value in if value { model.improve = false } }
                                 if model.translated { Text("Translations support timing and formatting; wording stays unchanged.").font(.caption).foregroundStyle(.secondary) }
                             }

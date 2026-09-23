@@ -2,6 +2,15 @@
 
 Recorded September 7–8, 2026 on Apple Silicon, macOS 26.6.2. Each section distinguishes local, provider and installed-artifact evidence. Clean macOS 15 and human subtitle acceptance remain separate.
 
+## 1.0.1 candidate checks — September 23, 2026
+
+- 64 Node, six Swift and 29 Python tests pass on Apple Silicon/macOS 27. Shared production/evaluation policy covers exact word/timing preservation, automatic cleanup punctuation, unavailable-model fallback, malformed responses, cancellation and verified caches. The public Jev calibration has 28/28 labeled passes. Its targeted 13-case final evaluation has 12 passes and one review, with no semantic failures; see [scope and raw-evidence locations](jev-apple-formatting.md). This is not a general quality or speed benchmark.
+- The actual bundled engine was exercised on twelve synthetic English SRT/translated Spanish ASS cues, including four additional sentences outside the tuning corpus. All words, numeric forms and timestamp pairs were preserved; ASS comments/styles/italics remained intact. The attempted expansion of “Dr.” to “Doctor” was rejected and source text retained. Punctuation/capitalization runs automatically with cleanup; cleanup off skips the native helper.
+- On this host, the six-cue English batch took 28.6 seconds cold and 26 ms from the verified cache; Spanish took 16.9 seconds cold and 18 ms cached. Cold time included model startup, punctuation and layout. Cache timings cover formatting only, not media analysis. These small samples do not predict full-film or minimum-device speed.
+- Build outputs and Swift scratch products now remain outside iCloud. The release helper targets macOS 15 and runtime-gates Foundation Models at macOS 26. Native macOS 26 inference and clean macOS 15/8 GB hardware acceptance remain untested.
+
+Signing, publication, installed-app and updater acceptance are recorded separately when complete. Existing recognition and bilingual human-review limitations below still apply.
+
 ## 1.0.0 release checks
 
 - **49 Node, five Swift, 27 Python and 32 relay tests pass.** Updater policy tests cover busy-job refusal and launch checks. Diagnostic regressions cover current-state delivery, strict privacy, actual incident build metadata, crash grouping independent of the current workflow, and duplicate receipts.

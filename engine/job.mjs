@@ -9,6 +9,7 @@ import { cleanCues, generatedCues } from './quality.mjs';
 import { store, discoverModel, verifyModel, manifest } from './models.mjs';
 import { recognize, identify, improve, languages } from './recognition.mjs';
 import { auditLanguages, guardGeneratedLanguage } from './language-guard.mjs';
+import { appleFormatting } from './apple-formatting.mjs';
 
 export async function validateRequest(request) {
   if(request.schema!==1 || !['align','generate'].includes(request.mode))throw new Error('Unsupported job request.');
@@ -114,13 +115,19 @@ export async function runJob(request) {
     }
     emit({type:'progress',stage:'Preparing subtitles',fraction:null});
     const quality=cleanCues(cues,{format:doc.format,language,cleanup:request.cleanup!==false,generated:false,durationMs:media.durationMs,fps:media.fps});
+    const formatting=await appleFormatting(quality.cues,{directory,format:doc.format,enabled:request.cleanup!==false});
+    quality.cues=formatting.cues;
+    quality.warnings=cleanCues(quality.cues,{format:doc.format,language,cleanup:false,durationMs:media.durationMs,fps:media.fps}).warnings;
+    quality.changes.push(...formatting.proposals.filter(p=>p.before!==p.after).map(p=>({...p,type:'apple-'+p.mode})));
+    notices.push(...formatting.notices);
     const text=renderSubtitle(doc,quality.cues,request.format);
     if(doc.format==='ass'&&request.format==='srt')notices.push('SRT cannot carry ASS positioning, animation or styles. Dialogue text and timings were retained.');
     if(doc.format==='ass'&&evidence&&Math.abs(evidence.transform.scale-1)>.0001&&doc.cues.some(c=>/\\(?:k|t|move|fad)/i.test(c.text)))notices.push('ASS relative animation and karaoke tags were preserved. Review their playback after the timing-rate change.');
     const output=path.join(directory,`result-${randomUUID()}.${request.format}`);
     processingSignal.throwIfAborted();
     await writeFile(output,text,{flag:'wx',mode:0o600});
-    const report={schema:1,mode:request.mode,output,videoHash,subtitleHash,stream,language,modelRevision:recognition?manifest.revision:null,evidence,changes:[...timing.changes,...wording.changes,...languageRepair.changes,...quality.changes],unresolved:timing.unresolved,languageAudit,languageChecks:languageRepair.checks,languageUnresolved:languageRepair.unresolved,warnings:quality.warnings,notices,cueCount:quality.cues.length,outputHash:await hashFile(output)};
+    const {cues: _formattedCues, ...formattingAudit}=formatting;
+    const report={schema:1,mode:request.mode,output,videoHash,subtitleHash,stream,language,modelRevision:recognition?manifest.revision:null,evidence,changes:[...timing.changes,...wording.changes,...languageRepair.changes,...quality.changes],unresolved:timing.unresolved,languageAudit,languageChecks:languageRepair.checks,languageUnresolved:languageRepair.unresolved,warnings:quality.warnings,formatting:formattingAudit,notices,cueCount:quality.cues.length,outputHash:await hashFile(output)};
     const reportPath=output+'.report.json';await writeFile(reportPath,JSON.stringify(report,null,2),{mode:0o600});
     if(request.output)await copyFile(output,request.output,constants.COPYFILE_EXCL);
     const summary=request.mode==='generate'?`Created ${quality.cues.length} subtitles.`:evidence.accepted?(Math.abs(evidence.transform.scale-1)>.00005?'Corrected subtitle timing speed.':Math.abs(evidence.transform.offset)>.1?`Shifted subtitles ${Math.abs(evidence.transform.offset).toFixed(2)} seconds ${evidence.transform.offset>0?'later':'earlier'}.`:'Subtitle timing is already consistent.'):'Timing needs a playback check.';

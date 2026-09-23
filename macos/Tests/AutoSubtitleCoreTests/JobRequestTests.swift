@@ -21,4 +21,10 @@ final class JobRequestTests: XCTestCase {
         let decoded = try JSONDecoder().decode(JobRequest.self, from: JSONEncoder().encode(job))
         XCTAssertFalse(decoded.repairLanguage); XCTAssertEqual(decoded.language, "es")
     }
+    func testCleanupCanBeDisabledForTranslationsAndGeneration() throws {
+        for mode in ["align", "generate"] {
+            let job = JobRequest(mode: mode, video: "/movie.mkv", subtitle: "/draft.srt", format: "srt", cleanup: false, improve: false, language: "auto", stream: nil, translated: true)
+            XCTAssertFalse(try JSONDecoder().decode(JobRequest.self, from: JSONEncoder().encode(job)).cleanup)
+        }
+    }
 }

@@ -12,7 +12,7 @@ The developer preparation script accepts two already obtained distributions: the
 python3 scripts/prepare-runtime.py /path/to/podcast-visualizer/runtime/macos-arm64 /path/to/cpython-3.11.15-macos-aarch64-none
 ```
 
-The script validates each media runtime file against this repository's `resources/runtime-sources/` pins, copies only Node/FFmpeg and their dependency closure, installs `requirements-sync.lock` into a separate Python copy, and relocates Mach-O dependencies. It never modifies the source Python distribution. The speech helper is built separately. `runtime/` is ignored by Git.
+The script validates each media runtime file against this repository's `resources/runtime-sources/` pins, copies only Node/FFmpeg and their dependency closure, installs `requirements-sync.lock` into a separate Python copy, and relocates Mach-O dependencies. It never modifies the source Python distribution. The speech and Apple formatting helpers are built separately. Building requires an SDK with Foundation Models (Xcode 26+); the app retains a macOS 15 deployment target. `runtime/` is ignored by Git.
 
 The Node archive is from nodejs.org v24.19.0; FFmpeg source is ffmpeg.org 8.1.2. Exact archive and binary hashes are recorded in the checked-in source manifests. Model installation uses Record's 17-file pinned inventory, exact size/SHA-256, HTTPS host checks before redirects, staging, cancellation and a 30-minute per-request bound suitable for the 445 MB encoder. A damaged installation is retained as a sibling `.replaced-invalid-…` backup only after a verified replacement is ready.
 
@@ -26,6 +26,8 @@ The arm64 macOS 15 runtime statically links whisper/ggml and embeds its Metal li
 
 ## Checks
 
+The optional [Jev and Apple formatting workflow](jev-apple-formatting.md) compares public synthetic subtitle output. `npm test` and `npm run test:quality` stay offline; `npm run test:apple` runs native Apple inference; Jev requires an explicit `--live` command. The Jev runner and fixtures are not packaged into the app; the Apple helper and preservation policy are shared with production.
+
 ```sh
 npm test
 uv run --no-project --python 3.11 --with pytest --with-requirements requirements-sync.lock python -m pytest -q
@@ -33,9 +35,11 @@ swift test --package-path macos
 bash scripts/build-app.sh
 ```
 
+If local Swift tests fail signing with “resource fork, Finder information, or similar detritus not allowed”, keep their build products outside iCloud: `swift test --package-path macos --scratch-path "$HOME/Library/Caches/AutoSubtitleTests"`. Build and release scripts now use the same outside-iCloud approach for Swift scratch products.
+
 Pytest is scoped to `tests/`, not bundled third-party test suites. The GitHub workflow runs engine/Python, Swift and pinned Whisper build gates using pinned actions inherited from the Podcast Visualizer CI baseline and stable Xcode 26.3. [Release-source CI passed](https://github.com/aindaco1/auto-subtitle/actions/runs/34186084184) for the immutable 1.0.0 tag, including the clean speech-helper build and generated model-manifest comparison.
 
-`build-app.sh` emits `~/Library/Caches/AutoSubtitleBuild/Auto Subtitle.app` by default; `AUTO_SUBTITLE_BUILD_DIR` overrides the parent. App directories under iCloud can acquire Finder metadata that invalidates signatures, so keep the working bundle outside CloudDocs. Existing builds are retained as `.backup` directories. The bundle gate checks local Python imports, required executables (including a runnable Whisper CLI), contained symlinks and Mach-O dependencies with only `/usr/bin:/bin` on PATH. It then applies and verifies an ad-hoc local signature.
+`build-app.sh` emits `~/Library/Caches/AutoSubtitleBuild/Auto Subtitle.app` by default; `AUTO_SUBTITLE_BUILD_DIR` overrides the parent. App directories under iCloud can acquire Finder metadata that invalidates signatures, so keep the working bundle outside CloudDocs. Swift scratch products live under its `swift-macos` and `swift-speech` directories. Existing app builds are retained as `.backup` directories until release validation and cleanup. The bundle gate checks local Python imports, required executables (including a runnable Whisper CLI), contained symlinks and Mach-O dependencies with only `/usr/bin:/bin` on PATH. It then applies and verifies an ad-hoc local signature.
 
 ```sh
 bash scripts/package-local.sh
