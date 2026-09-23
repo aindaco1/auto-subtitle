@@ -2,7 +2,7 @@
 
 Recorded September 7–23, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each section distinguishes local, provider and installed-artifact evidence. Clean macOS 15 and human subtitle acceptance remain separate.
 
-## 1.0.2 candidate checks — September 23, 2026
+## 1.0.2 release checks — September 23, 2026
 
 - 76 Node, 29 Python and six app Swift tests pass. Both native helpers build from
   Platform `0affb6c5652611b87947bd87762d8aa17d35ea32`; speech keeps FluidAudio
@@ -26,17 +26,40 @@ Recorded September 7–23, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each sect
 - Native Generate/Save exports two English captions. Translated ASS alignment/Save
   retains all three Spanish cues, timing, styles, comment and italics; uncertain
   short-sample timing is explicitly reported. Original file hashes are unchanged.
-- Diagnostic preview shows 1.0.2/build 10002 without private fields. Diagnostic
-  export remains blocked by the native Save panel staying disabled under automation;
-  this is not counted as a pass. Public publication and updater acceptance are held.
+- Diagnostic preview and native JSON export pass with 1.0.2/build 10002. The
+  exported JSON matches the reviewed preview and contains no private paths, media
+  or subtitle text. The previously disabled Save panel succeeded in the original
+  signed app after refreshing the desktop interaction; no speculative panel change
+  was shipped. No diagnostic report was submitted.
 
 [CI 35893342932](https://github.com/aindaco1/auto-subtitle/actions/runs/35893342932)
 passed all three lanes for implementation `158d0cfbf8dc80771bff895a021a58759963a835`.
-All five assets are staged in the GitHub draft release and their provider digests
-match local SHA-256 values. Final DMG:
+[Main CI 35925691933](https://github.com/aindaco1/auto-subtitle/actions/runs/35925691933)
+also passed after merging [PR #6](https://github.com/aindaco1/auto-subtitle/pull/6).
+The [published 1.0.2 release](https://github.com/aindaco1/auto-subtitle/releases/tag/v1.0.2)
+uses that immutable implementation tag. All five hosted assets match their local
+digests. Fresh unauthenticated downloads pass every checksum, the latest-feed
+comparison, public-key Sparkle archive verification, mounted signatures, staples,
+Gatekeeper and bundled-runtime imports. Final DMG:
 `150ca6661e06669209a83c0707e4b2ba586000a212022ca0888e5b25d77e6695`.
-The public latest release remains 1.0.1. A verified 1.0.1 rollback copy is retained
-outside iCloud for the eventual real Sparkle update test.
+
+The installed 1.0.1/build 10001 found the public update, downloaded through Sparkle,
+completed **Install and Relaunch**, and reported 1.0.2/build 10002. A fresh check
+reported it current. All 5,182 installed files and symlinks match the public DMG;
+installed strict signatures, ticket, Gatekeeper and runtime checks pass.
+
+After acceptance, 24 obsolete items (about 7.62 GB of reported allocated size)
+were moved recoverably to a dedicated Trash folder with an original-path restore
+map: superseded app and DMG copies, eleven old evaluator build caches, completed
+download/rollback copies and generated scratch files. This is removal from active
+development locations, not a claim that Trash has been emptied or disk space
+reclaimed. The merged `release/1.0.2` branch was deleted locally and remotely.
+The separate `codex/shared-native-speech` worktree/branch retains uncommitted
+migration changes and was preserved. Current release assets, the installed and
+local testing app, current build/test/evaluator caches, development runtimes,
+fixtures, compact evaluation evidence, original media/exports and app-owned models
+and jobs remain. The local macOS build cache was refreshed against restored release
+source after discarding the unused panel experiment.
 
 Evidence is under `artifacts/evaluation/release-1.0.2-*` and
 `artifacts/releases/1.0.2/`; preserved sync copies and failed experiments remain
