@@ -7,7 +7,7 @@ The app makes one quiet launch check and retains a top-right button and applicat
 ## Prepare
 
 1. Update `package.json`, `pyproject.toml`, the Python package version, `macos/Info.plist`, and `CHANGELOG.md`. Increase the numeric bundle build monotonically.
-2. Run `npm test`, the locked Python tests and `swift test --package-path macos`. Run the relay's `npm run check` if its contract or adapter changes.
+2. Run `npm test`, the locked Python tests and `swift test --package-path macos --scratch-path "$HOME/Library/Caches/AutoSubtitleTests"`. Run the relay's `npm run check` if its contract or adapter changes.
 3. Run `bash scripts/build-app.sh`. It builds outside iCloud and bundles Sparkle, the pinned speech/media runtimes, the availability-gated Apple formatter and notices. No model weights are included.
 4. Run native import, generation/alignment, Save and reviewed diagnostic export. Verify resulting files and originals on disk. For reporting changes, exercise explicit synthetic GitHub tests only when authorized and close the resulting test issues.
 

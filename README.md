@@ -32,7 +32,7 @@ The app retains local checkpoints for retry. The **Local report** contains subti
 git submodule update --init --recursive
 python3 scripts/prepare-runtime.py /path/to/podcast-visualizer/runtime/macos-arm64 /path/to/cpython-3.11.15-macos-aarch64-none
 npm test
-swift test --package-path macos
+swift test --package-path macos --scratch-path "$HOME/Library/Caches/AutoSubtitleTests"
 bash scripts/build-app.sh
 ```
 

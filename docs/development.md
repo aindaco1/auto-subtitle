@@ -31,7 +31,7 @@ The optional [Jev and Apple formatting workflow](jev-apple-formatting.md) compar
 ```sh
 npm test
 uv run --no-project --python 3.11 --with pytest --with-requirements requirements-sync.lock python -m pytest -q
-swift test --package-path macos
+swift test --package-path macos --scratch-path "$HOME/Library/Caches/AutoSubtitleTests"
 bash scripts/build-app.sh
 ```
 
