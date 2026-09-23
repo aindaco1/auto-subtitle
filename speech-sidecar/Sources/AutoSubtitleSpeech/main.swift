@@ -1,5 +1,5 @@
 import Foundation
-import RecordSpeech
+import DustWaveSpeech
 import NaturalLanguage
 import AppKit
 
@@ -58,7 +58,7 @@ func emit(_ value: Any) throws {
             }
             let modelURL = URL(fileURLWithPath: args[1])
             try ParakeetModelVerifier.validateV3(at: modelURL)
-            RecordFluidAudioOfflinePolicy.enforce()
+            LocalSpeechOfflinePolicy.enforce()
             let requests = try JSONDecoder().decode([Chunk].self, from: Data(contentsOf: URL(fileURLWithPath: args[2])))
             let transcriber = ParakeetTranscriber()
             try await transcriber.prepare(modelDirectory: modelURL)

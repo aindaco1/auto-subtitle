@@ -2,6 +2,35 @@
 
 Recorded September 7–23, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each section distinguishes local, provider and installed-artifact evidence. Clean macOS 15 and human subtitle acceptance remain separate.
 
+## 1.0.2 candidate checks — September 23, 2026
+
+- 71 Node, 29 Python and six app Swift tests pass. Both native helpers build from
+  Platform `0affb6c5652611b87947bd87762d8aa17d35ea32`; speech keeps FluidAudio
+  0.15.5. Source/model manifests, lexical and timestamp preservation, provider
+  isolation, malformed evidence, cache binding and cancellation are covered.
+- The fixed public Jev controls pass 36/36. The 19-case candidate has exact
+  preservation throughout, one safely rejected Spanish synonym proposal, one
+  English phrase review and one inspected false Jev finding about a comma-ended
+  caption. Its combined command remains non-passing. See
+  [the full result and evidence locations](jev-apple-formatting.md).
+- The built bundle generated two English and two Spanish captions from fresh public
+  synthetic speech. Original audio SHA-256 values are unchanged. Cleanup off/on
+  preserves all recognized words and every timestamp pair; cleanup off makes no
+  Apple requests. The English recognizer spells the spoken name Ana as Anna,
+  illustrating that this is pipeline evidence, not improved recognition accuracy.
+- Developer ID signing, strict nested signature validation, bundled runtime checks,
+  app and DMG notarization, stapling and Gatekeeper checks pass for 1.0.2/build 10002.
+  The working app is outside iCloud; source and model checkpoints remain intact.
+- The signed app launches and its Generate UI and model-ready state render correctly.
+  Native file-picker automation selects the local synthetic movie, but Open remains
+  disabled; import/Save acceptance is still pending. Earlier GUI acceptance is not
+  counted as a new candidate pass. Publication and the public updater check remain
+  pending.
+
+Local evidence is under `artifacts/evaluation/release-1.0.2-*`, with source-preserved
+sync copies under `artifacts/sync-copies-before-1.0.2/`. The DMG and signed feed are
+staged in `dist/`. No release tag has been created by this validation record.
+
 ## 1.0.1 release checks — September 23, 2026
 
 - 65 Node, six Swift and 29 Python tests pass on Apple Silicon/macOS 27. Shared production/evaluation policy covers exact word/timing preservation, automatic cleanup punctuation, unavailable-model fallback, malformed responses, cancellation and verified caches. The public Jev calibration has 28/28 labeled passes. Its targeted 13-case final evaluation has 12 passes and one review, with no semantic failures; see [scope and raw-evidence locations](jev-apple-formatting.md). This is not a general quality or speed benchmark.

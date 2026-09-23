@@ -62,8 +62,8 @@ jobs:
       - name: Build pinned local Whisper runtime
         run: bash scripts/build-whisper.sh
       - run: swift test --package-path macos
-      - name: Type-check the Apple formatting helper
-        run: xcrun swiftc -typecheck -parse-as-library -target arm64-apple-macos15.0 formatting-sidecar/AppleSubtitleFormatter.swift
+      - name: Build the Apple formatting helper and shared adapter
+        run: swift build --package-path formatting-sidecar --product auto-subtitle-format
       - run: swift build --package-path speech-sidecar -c release --product auto-subtitle-speech
       - name: Verify generated model manifest
         run: |

@@ -16,10 +16,20 @@ export async function identify(text, directory, name='language') {
   const best=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
   return best && best[1]>=.8 ? best[0] : 'und';
 }
-function validResult(result, lengthMs) {
-  if (!Array.isArray(result.words) || !Array.isArray(result.tokens)) return false;
-  return result.words.every(w=>typeof w.text==='string'&&w.text.length<2000&&Number.isFinite(w.startsAtSeconds)&&Number.isFinite(w.endsAtSeconds)&&w.startsAtSeconds>=0&&w.endsAtSeconds>w.startsAtSeconds&&w.endsAtSeconds*1000<=lengthMs+500);
+export function validResult(result, lengthMs) {
+  if (!result || !Number.isFinite(lengthMs) || lengthMs<=0 ||
+      !Array.isArray(result.words) || !Array.isArray(result.tokens)) return false;
+  const validItems=(items,tokens)=>items.length<=100_000 && items.every((item,index)=>
+    item && typeof item.text==='string' && item.text.length>0 && item.text.length<2000 &&
+    Number.isFinite(item.startsAtSeconds) && Number.isFinite(item.endsAtSeconds) &&
+    item.startsAtSeconds>=0 && item.endsAtSeconds>=item.startsAtSeconds &&
+    (tokens || item.endsAtSeconds>item.startsAtSeconds) && item.endsAtSeconds*1000<=lengthMs+500 &&
+    (!index || item.startsAtSeconds>=items[index-1].startsAtSeconds) &&
+    (!tokens || Number.isFinite(item.confidence)&&item.confidence>=0&&item.confidence<=1));
+  return validItems(result.words,false) && validItems(result.tokens,true);
 }
+export const strongTokens=(tokens,minimum=.9)=>Array.isArray(tokens)&&tokens.length>0&&
+  tokens.every(t=>t&&Number.isFinite(t.confidence)&&t.confidence>=minimum&&t.confidence<=1);
 export async function recognize({video,stream,durationMs,model,directory}) {
   const chunkDir=path.join(directory,'recognition-v1');await mkdir(chunkDir,{recursive:true,mode:0o700});
   const chunks=[],pending=[];
@@ -100,7 +110,7 @@ export function safeWordingCandidate(source,candidate,tokens) {
   if(row.at(-1)>Math.max(2,Math.floor(Math.max(old.length,replacement.length)*.35)))return false;
   if(Math.min(old.length,replacement.length)/Math.max(old.length,replacement.length)<.6)return false;
   const score=similarity(source,candidate);
-  if(score<.7||score>=1||!tokens.length||Math.min(...tokens.map(t=>t.confidence))<.9)return false;
+  if(score<.7||score>=1||!strongTokens(tokens))return false;
   // Names and polarity are costly errors. Keep them even when repeated ASR agrees.
   const protectedWords=text=>normalized(text).split(' ').filter(w=>/^(no|not|never|neither|nor|nunca|jamás|ni|sin|non|pas|nicht|kein|нет|не)$/u.test(w)).sort().join(' ');
   if(protectedWords(source)!==protectedWords(candidate))return false;
@@ -161,7 +171,7 @@ export async function improve(cues,recognition,context) {
     const words=recognition.words.filter(w=>w.startsAtMs>=generated.start&&w.endsAtMs<=generated.end);
     if(words.length<3||cues.some(c=>c.end>generated.start-250&&c.start<generated.end+250))continue;
     const tokens=recognition.tokens.filter(t=>t.startsAtMs>=generated.start&&t.endsAtMs<=generated.end&&/\p{L}/u.test(t.text));
-    if(!tokens.length||Math.min(...tokens.map(t=>t.confidence))<.95)continue;
+    if(!strongTokens(tokens,.95))continue;
     const nearest=cues.reduce((a,b)=>Math.abs(a.start-generated.start)<Math.abs(b.start-generated.start)?a:b);
     const cue={...nearest,...generated,id:`recovered-${generated.start}`,lineage:[`audio-${generated.start}-${generated.end}`]};
     candidates.push({cue,text:generated.text,words,insert:true});
@@ -195,7 +205,9 @@ export async function improve(cues,recognition,context) {
     if(!validResult(check,end-start))continue;
     const words=check.words.filter(w=>w.startsAtSeconds*1000+start>=c.words[0].startsAtMs-300&&w.endsAtSeconds*1000+start<=c.words.at(-1).endsAtMs+300);
     const text=words.map(w=>w.text).join(' ');
-    if(normalized(text)===normalized(c.text)) {
+    const tokens=check.tokens.filter(t=>/\p{L}/u.test(t.text)&&
+      t.startsAtSeconds>=words[0]?.startsAtSeconds&&t.endsAtSeconds<=words.at(-1)?.endsAtSeconds);
+    if(normalized(text)===normalized(c.text) && strongTokens(tokens,c.insert?.95:.9)) {
       const corrected=c.insert?c.text:preserveWordingSurface(c.cue.text,c.text);
       if(!c.insert&&corrected===c.cue.text)continue;
       changes.push({type:c.insert?'recover-speech':'wording',id:c.cue.id,before:c.insert?null:c.cue.text,after:corrected,reason:'Matching recognition with additional context and strong token evidence; complete phrase retained'});

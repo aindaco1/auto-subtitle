@@ -2,7 +2,7 @@
 
 Build on an Apple Silicon Mac with Swift 6/Xcode command line tools, Python 3.11+, uv, CMake, and Node 24 for developer tests. End users need none of these tools.
 
-Initialize pinned dependencies with `git submodule update --init --recursive`. RecordSpeech owns the model manifest; `speech-sidecar/Package.resolved` locks the Swift closure. Do not update submodules casually while rebuilding.
+Initialize pinned dependencies with `git submodule update --init --recursive`. Platform’s DustWaveSpeech owns the model manifest; `speech-sidecar/Package.resolved` locks the Swift closure. Do not update submodules casually while rebuilding.
 
 ## Runtime preparation
 
@@ -14,7 +14,7 @@ python3 scripts/prepare-runtime.py /path/to/podcast-visualizer/runtime/macos-arm
 
 The script validates each media runtime file against this repository's `resources/runtime-sources/` pins, copies only Node/FFmpeg and their dependency closure, installs `requirements-sync.lock` into a separate Python copy, and relocates Mach-O dependencies. It never modifies the source Python distribution. The speech and Apple formatting helpers are built separately. Building requires an SDK with Foundation Models (Xcode 26+); the app retains a macOS 15 deployment target. `runtime/` is ignored by Git.
 
-The Node archive is from nodejs.org v24.19.0; FFmpeg source is ffmpeg.org 8.1.2. Exact archive and binary hashes are recorded in the checked-in source manifests. Model installation uses Record's 17-file pinned inventory, exact size/SHA-256, HTTPS host checks before redirects, staging, cancellation and a 30-minute per-request bound suitable for the 445 MB encoder. A damaged installation is retained as a sibling `.replaced-invalid-…` backup only after a verified replacement is ready.
+The Node archive is from nodejs.org v24.19.0; FFmpeg source is ffmpeg.org 8.1.2. Exact archive and binary hashes are recorded in the checked-in source manifests. Model installation uses Platform's 17-file pinned inventory, exact size/SHA-256, HTTPS host checks before redirects, staging, cancellation and a 30-minute per-request bound suitable for the 445 MB encoder. A damaged installation is retained as a sibling `.replaced-invalid-…` backup only after a verified replacement is ready.
 
 ## Optional repair runtime
 

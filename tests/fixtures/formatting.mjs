@@ -30,7 +30,19 @@ export const fixtures = [
   {id:'fast-caption', language:'en', format:'srt', source:srt(['1234567890\n12345678901'],1050), expectedWarning:'Reading speed',
     requirements:{numbers:'Both complete digit sequences 1234567890 and 12345678901 remain present.'}},
   {id:'unsupported-language', language:'ar', format:'srt', source:srt(['هذا نص مترجم.']), protected:true,
-    requirements:{language:'The caption stays in Arabic and retains the original Arabic wording.'}}
+    requirements:{language:'The caption stays in Arabic and retains the original Arabic wording.'}},
+  {id:'english-continuation', language:'en', punctuation:true, format:'srt', source:srt(['if ana comes','we can leave together']),
+    requirements:{condition:'Across the two captions, leaving together remains conditional on Ana coming.', continuation:'The first caption does not end with a period; the conditional sentence continues in the second caption.'}},
+  {id:'spanish-continuation', language:'es', punctuation:true, format:'srt', source:srt(['si no viene ana','nos quedamos aquí']),
+    requirements:{condition:'Nos quedamos aquí solo si Ana no viene.', continuation:'El primer subtítulo no termina en punto; la oración condicional continúa en el segundo.'}},
+  {id:'english-question', language:'en', punctuation:true, format:'srt', source:srt(['You can wait, can you not?']),
+    requirements:{question:'The caption remains a question, including its final question mark.'}},
+  {id:'spanish-question', language:'es', punctuation:true, format:'srt', source:srt(['¿No viene Ana?']),
+    requirements:{question:'La llegada de Ana se pregunta, no se afirma; se conservan ambos signos de interrogación.'}},
+  {id:'english-uncertainty', language:'en', punctuation:true, format:'srt', source:srt(['we may not arrive before ana']),
+    requirements:{uncertainty:'Arriving before Ana is uncertain; the caption does not claim a definite arrival or give a separate negative reply.'}},
+  {id:'spanish-negation', language:'es', punctuation:true, format:'srt', source:srt(['no quiero salir todavía']),
+    requirements:{negation:'La persona no quiere salir todavía; no dice que sí quiere salir después de una respuesta No.'}}
 ];
 
 // Labels are engineering judgments, not independent native-speaker ratings.
@@ -55,5 +67,9 @@ export const calibration = [
   ...pair('es-name','validation','Debemos hablar con Marta Pérez antes del viaje.','El nombre Marta Pérez se muestra en una sola línea.','Debemos hablar con Marta Pérez\nantes del viaje.','Debemos hablar con Marta\nPérez antes del viaje.'),
   ...pair('en-unit','validation','Bring 24 kg before noon.','The number 24 and its unit kg appear on the same display line.','Bring 24 kg\nbefore noon.','Bring 24\nkg before noon.'),
   ...pair('en-uncertainty','validation','The train may arrive late.','The train arriving late is a possibility, not a certainty.','The train may arrive late.','The train will arrive late.'),
-  ...pair('es-surface','validation','mañana viene pablo','La frase empieza con mayúscula, escribe Pablo con mayúscula y termina en punto.','Mañana viene Pablo.','mañana viene pablo')
+  ...pair('es-surface','validation','mañana viene pablo','La frase empieza con mayúscula, escribe Pablo con mayúscula y termina en punto.','Mañana viene Pablo.','mañana viene pablo'),
+  ...pair('en-continuation','validation','If Luis arrives, we can leave.','The first caption does not end with a period; the conditional sentence continues in the second caption.','If Luis arrives,\n\nwe can leave.','If Luis arrives.\n\nWe can leave.'),
+  ...pair('es-continuation','validation','Si no viene Marta, esperamos.','El primer subtítulo no termina en punto; la oración condicional continúa en el segundo.','Si no viene Marta,\n\nesperamos.','Si no viene Marta.\n\nEsperamos.'),
+  ...pair('en-question','validation','Will you wait?','The caption remains a question, including its final question mark.','Will you wait?','Will you wait.'),
+  ...pair('es-punctuation-negation','validation','No quiero ir.','La persona no quiere ir; no dice que sí quiere ir después de una respuesta No.','No quiero ir.','No, quiero ir.')
 ];

@@ -57,14 +57,18 @@ async function nativeProbe() {
   const source=path.join(root,'formatting-sidecar/AppleSubtitleFormatter.swift');
   const contents=await readFile(source,'utf8');
   const {stdout:toolchain}=await execute('xcrun',['swiftc','--version']);
-  const directory=path.join(os.homedir(),'Library/Caches/AutoSubtitlePrototype',digest(contents+toolchain));
+  const shared=await readFile(path.join(root,'shared/dust-wave-platform/native/Sources/DustWaveAppleIntelligence/AppleGeneration.swift'),'utf8');
+  const directory=path.join(os.homedir(),'Library/Caches/AutoSubtitlePrototype',digest(contents+shared+toolchain));
   await mkdir(directory,{recursive:true});
-  const binary=path.join(directory,'AppleSubtitleProbe');
-  await execute('xcrun',['swiftc','-parse-as-library','-target','arm64-apple-macos15.0',source,'-o',binary],{timeout:60_000,maxBuffer:2_000_000});
+  const buildArgs=['build','--package-path',path.join(root,'formatting-sidecar'),'--scratch-path',directory];
+  await execute('swift',[...buildArgs,'--product','auto-subtitle-format'],{timeout:300_000,maxBuffer:2_000_000});
+  const {stdout:binPath}=await execute('swift',[...buildArgs,'--show-bin-path']);
+  const binary=path.join(binPath.trim(),'auto-subtitle-format');
   await execute('/usr/bin/codesign',['--force','--sign','-',binary],{timeout:10_000});
   await save('AppleSubtitleFormatter.swift',contents);
+  await save('AppleGeneration.swift',shared);
   const {stdout:macOS}=await execute('/usr/bin/sw_vers',[]);
-  await save('native-environment.json',{toolchain,macOS,architecture:os.arch(),sourceHash:digest(contents),binaryHash:digest(await readFile(binary))});
+  await save('native-environment.json',{toolchain,macOS,architecture:os.arch(),sourceHash:digest(contents),sharedSourceHash:digest(shared),binaryHash:digest(await readFile(binary))});
   return async (requests,mode)=>{
     if(!requests.length) return [];
     const input=path.join(output,`${mode}-requests.json`);
