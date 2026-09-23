@@ -19,12 +19,28 @@ Recorded September 7–23, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each sect
   preserves all recognized words and every timestamp pair; cleanup off makes no
   Apple requests. The English recognizer spells the spoken name Ana as Anna,
   illustrating that this is pipeline evidence, not improved recognition accuracy.
-- Final signed-build, native import/Save, publication and public updater checks are
-  pending. An earlier 1.0.2 candidate passed package gates but is superseded by the
-  final recovery/case safeguards and must not be published.
+- The final signed bundle reproduces all 23 Jev-evaluated outputs exactly. Its
+  English and Spanish audio pipelines preserve the original audio and match the
+  earlier recognized words and timestamps. Developer ID signatures, both Apple
+  notarizations, staples, Gatekeeper, mounted image and runtime checks pass.
+- Native Generate/Save exports two English captions. Translated ASS alignment/Save
+  retains all three Spanish cues, timing, styles, comment and italics; uncertain
+  short-sample timing is explicitly reported. Original file hashes are unchanged.
+- Diagnostic preview shows 1.0.2/build 10002 without private fields. Diagnostic
+  export remains blocked by the native Save panel staying disabled under automation;
+  this is not counted as a pass. Public publication and updater acceptance are held.
 
-Evidence is under `artifacts/evaluation/release-1.0.2-*`; preserved sync copies and
-failed experiments remain under `artifacts/sync-copies-before-1.0.2/`.
+[CI 35893342932](https://github.com/aindaco1/auto-subtitle/actions/runs/35893342932)
+passed all three lanes for implementation `158d0cfbf8dc80771bff895a021a58759963a835`.
+All five assets are staged in the GitHub draft release and their provider digests
+match local SHA-256 values. Final DMG:
+`150ca6661e06669209a83c0707e4b2ba586000a212022ca0888e5b25d77e6695`.
+The public latest release remains 1.0.1. A verified 1.0.1 rollback copy is retained
+outside iCloud for the eventual real Sparkle update test.
+
+Evidence is under `artifacts/evaluation/release-1.0.2-*` and
+`artifacts/releases/1.0.2/`; preserved sync copies and failed experiments remain
+under `artifacts/sync-copies-before-1.0.2/`.
 
 ## 1.0.1 release checks — September 23, 2026
 
