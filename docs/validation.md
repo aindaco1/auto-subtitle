@@ -4,32 +4,27 @@ Recorded September 7–23, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each sect
 
 ## 1.0.2 candidate checks — September 23, 2026
 
-- 71 Node, 29 Python and six app Swift tests pass. Both native helpers build from
+- 76 Node, 29 Python and six app Swift tests pass. Both native helpers build from
   Platform `0affb6c5652611b87947bd87762d8aa17d35ea32`; speech keeps FluidAudio
   0.15.5. Source/model manifests, lexical and timestamp preservation, provider
   isolation, malformed evidence, cache binding and cancellation are covered.
-- The fixed public Jev controls pass 36/36. The 19-case candidate has exact
-  preservation throughout, one safely rejected Spanish synonym proposal, one
-  English phrase review and one inspected false Jev finding about a comma-ended
-  caption. Its combined command remains non-passing. See
-  [the full result and evidence locations](jev-apple-formatting.md).
+- All 44 fixed public Jev controls pass. The final 23-case candidate passes exact
+  preservation, literal formatting, native completion and every Jev requirement at
+  the unchanged 0.10 threshold. Bounded original-word recovery fixes the Spanish
+  synonym proposal; fresh cases exposed and fixed unwanted ALL CAPS. Literal
+  assertions replace the erroneous comma/period judgment and vague phrase rule,
+  with broken controls still rejected. See [evidence](jev-apple-formatting.md).
 - The built bundle generated two English and two Spanish captions from fresh public
   synthetic speech. Original audio SHA-256 values are unchanged. Cleanup off/on
   preserves all recognized words and every timestamp pair; cleanup off makes no
   Apple requests. The English recognizer spells the spoken name Ana as Anna,
   illustrating that this is pipeline evidence, not improved recognition accuracy.
-- Developer ID signing, strict nested signature validation, bundled runtime checks,
-  app and DMG notarization, stapling and Gatekeeper checks pass for 1.0.2/build 10002.
-  The working app is outside iCloud; source and model checkpoints remain intact.
-- The signed app launches and its Generate UI and model-ready state render correctly.
-  Native file-picker automation selects the local synthetic movie, but Open remains
-  disabled; import/Save acceptance is still pending. Earlier GUI acceptance is not
-  counted as a new candidate pass. Publication and the public updater check remain
-  pending.
+- Final signed-build, native import/Save, publication and public updater checks are
+  pending. An earlier 1.0.2 candidate passed package gates but is superseded by the
+  final recovery/case safeguards and must not be published.
 
-Local evidence is under `artifacts/evaluation/release-1.0.2-*`, with source-preserved
-sync copies under `artifacts/sync-copies-before-1.0.2/`. The DMG and signed feed are
-staged in `dist/`. No release tag has been created by this validation record.
+Evidence is under `artifacts/evaluation/release-1.0.2-*`; preserved sync copies and
+failed experiments remain under `artifacts/sync-copies-before-1.0.2/`.
 
 ## 1.0.1 release checks — September 23, 2026
 

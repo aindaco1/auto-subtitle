@@ -28,12 +28,28 @@ export function sameWords(source, candidate) {
     JSON.stringify(numbers(source)) === JSON.stringify(numbers(candidate)) &&
     protectedSymbols(source) === protectedSymbols(candidate);
 }
+export function preservesWordCase(source, candidate) {
+  const words=text=>text.match(/[\p{L}\p{M}\p{N}]+(?:['’\-][\p{L}\p{M}\p{N}]+)*/gu)??[];
+  const before=words(source),after=words(candidate);
+  return before.length===after.length&&before.every((word,i)=>
+    after[i]===word||after[i]===word.replace(/^\p{L}/u,c=>c.toLocaleUpperCase())||
+    after[i]===word.replace(/^\p{L}/u,c=>c.toLocaleLowerCase()));
+}
 export function eligible(fixture, cue) {
   return ['auto','en','es'].includes(fixture.language) && !fixture.protected && !protectedText(cue.text,fixture.format) &&
     !/^\s*[-–—♪♫\[]/mu.test(visibleText(cue.text,fixture.format));
 }
 export function choices(text) {
   return wrapOptions(flat(text)).filter(value=>value.split('\n').every(line=>length(line)<=42)).slice(0,12);
+}
+// One recovery path after a lexical rewrite: only source-derived surface strings.
+// No synonym projection, repeated free-text retry, or invented internal punctuation.
+export function surfaceChoices(source, language) {
+  const capitalized=source.replace(/\p{L}/u, letter=>letter.toLocaleUpperCase());
+  if(/[.!?…]["'”’)]*$/.test(capitalized)) return [capitalized];
+  return [...new Set([capitalized+'.',capitalized,
+    (language==='es'&&!capitalized.startsWith('¿')?'¿':'')+capitalized+'?'])]
+    .filter(text=>sameWords(source,text)&&preservesPunctuation(source,text));
 }
 export function applyProposal(fixture, cue, response, request) {
   const source = visibleText(cue.text,fixture.format);
@@ -50,6 +66,7 @@ export function applyProposal(fixture, cue, response, request) {
     text=response.text;
     if(!sameWords(source,text) || !text.trim() || /\n/.test(text)) return {cue,disposition:'rejected',reason:'Punctuation proposal changed words, numbers, protected symbols or structure'};
     if(!preservesPunctuation(source,text)) return {cue,disposition:'rejected',reason:'Existing punctuation or its word boundary changed'};
+    if(!preservesWordCase(source,text)) return {cue,disposition:'rejected',reason:'Capitalization changed inside source words'};
     if(text===flat(source)) return {cue,disposition:'unchanged',reason:'Punctuation and capitalization already match'};
     text=wrap(text); // Preserve normal wrapping even when only one valid layout exists.
   } else return {cue,disposition:'rejected',reason:'Unsupported proposal mode'};
@@ -85,6 +102,23 @@ export async function formatCues(input, settings, generate) {
     }
     if(!entries.length)continue;
     const responses=await generate(entries.map(e=>e.request),mode);
+    const recoveries=mode==='punctuation'?entries.flatMap(({request},index)=>{
+      const response=responses[index];
+      if(response?.schema!==1||response.id!==request.id||response.mode!==mode||response.status!=='complete'||
+        (sameWords(request.source,response.text)&&preservesPunctuation(request.source,response.text)&&preservesWordCase(request.source,response.text)))return [];
+      const options=surfaceChoices(request.source,response.language??settings.language);
+      return options.length?[{index,request:{...request,options}}]:[];
+    }):[];
+    if(recoveries.length) {
+      const selections=await generate(recoveries.map(r=>r.request),'punctuation-recovery');
+      for(const [i,{index,request}] of recoveries.entries()) {
+        const selection=selections[i], draft=responses[index];
+        const valid=selection?.schema===1&&selection.id===request.id&&selection.mode===mode&&selection.status==='complete'&&
+          Number.isInteger(selection.choice)&&selection.choice>=0&&selection.choice<request.options.length;
+        responses[index]={...(valid?selection:draft),...(valid?{text:request.options[selection.choice]}:{}),
+          recovery:{reason:'Free-text draft changed source words, punctuation or internal capitalization',draft,options:request.options,selection,accepted:valid}};
+      }
+    }
     for(const [i,{indices,request}] of entries.entries()) {
       const response=responses[i];
       native.push(response??{id:request.id,mode,status:'error',reason:'missing_response'});

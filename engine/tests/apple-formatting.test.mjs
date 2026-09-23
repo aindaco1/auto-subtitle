@@ -115,3 +115,38 @@ test('production cleanup automatically polishes punctuation and retains safe lay
     assert.deepEqual(unchanged.cues,[wrapped]);
   } finally {await rm(directory,{recursive:true,force:true});}
 });
+
+test('one source-derived recovery can finish a rewritten draft without accepting its words',async()=>{
+  const input=[{id:'negation',start:0,end:5000,text:'no quiero salir todavía'}],calls=[];
+  const result=await formatCues(input,{format:'srt',language:'es',punctuation:true},async requests=>{
+    calls.push(requests);
+    return requests.map(r=>r.options.length?{schema:1,id:r.id,mode:r.mode,status:'complete',choice:0}:
+      {schema:1,id:r.id,mode:r.mode,status:'complete',language:'es',text:'NO QUIERO SALIR AÚN.'});
+  });
+  assert.equal(calls.length,2);assert.deepEqual(calls[1][0].options,['No quiero salir todavía.','No quiero salir todavía','¿No quiero salir todavía?']);
+  assert.equal(result.cues[0].text,'No quiero salir todavía.');
+  assert.equal(result.native[0].recovery.draft.text,'NO QUIERO SALIR AÚN.');
+  assert.equal(result.native[0].recovery.accepted,true);
+  assert.deepEqual([result.cues[0].start,result.cues[0].end],[0,5000]);
+});
+test('a failed bounded recovery retains the source and remains rejected without further retries',async()=>{
+  let calls=0;
+  const input=[{id:'negation',start:0,end:5000,text:'no quiero salir todavía'}];
+  const result=await formatCues(input,{format:'srt',language:'es',punctuation:true},async requests=>{
+    calls++;return requests.map(r=>({schema:1,id:r.id,mode:r.mode,status:'complete',text:'Quiero salir.',choice:999}));
+  });
+  assert.equal(calls,2);assert.deepEqual(result.cues,input);
+  assert.equal(result.proposals[0].disposition,'rejected');
+  assert.equal(result.native[0].recovery.accepted,false);
+});
+
+test('new shouting is rejected while existing acronyms and internal name casing survive',()=>{
+  const check=(source,text)=>{
+    const cue={id:'case',start:0,end:5000,text:source},request={id:'case',mode:'punctuation'};
+    return applyProposal({format:'srt',language:'en',punctuation:true},cue,{schema:1,...request,status:'complete',text},request).disposition;
+  };
+  assert.equal(check('no podemos esperar más','NO PODEMOS ESPERAR MÁS.'),'rejected');
+  assert.equal(check('no debemos cambiar la fecha','NO debemos cambiar la fecha.'),'rejected');
+  assert.equal(check('we use NASA and iOS','We use NASA and iOS.'),'review');
+  assert.equal(check('i will ask McDonald','I will ask McDonald.'),'review');
+});

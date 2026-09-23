@@ -2,51 +2,55 @@
 
 Auto Subtitle 1.0.1 shares one bounded Apple formatting implementation between the app and developer evaluations. Jev remains development-only. The reference was the published [CutNotes 1.0.5](https://github.com/aindaco1/cutnotes/releases/tag/v1.0.5): bounded local transformations, explicit incomplete/fallback reporting, exact preservation gates and review of representative output. Its transcript-specific formatting code was not copied.
 
-## 1.0.2 candidate evidence — September 23, 2026
+## 1.0.2 required release evaluation — September 23, 2026
 
-The release comparison preserves all original questions and the 0.10 margin. Six
-new public cases cover English/Spanish caption continuations, questions, uncertainty
-and negation. Eight fresh labeled calibration examples extend the fixed controls:
-36/36 gave confident correct decisions with `jev-1.13.0`.
+Jev is a required development release gate for 1.0.2. The final public corpus has
+23 English/Spanish, translated, protected-presentation and unsupported-language
+cases. All preserve their source words, quantities, timestamps and export formats;
+all literal formatting checks pass, native requests complete, and all Jev
+requirements pass at the unchanged 0.10 margin with `jev-1.13.0`. Calibration passes
+44/44 labeled examples, retaining every original negative control and adding eight
+fresh semantic controls before observing their results.
 
-The existing-source native baseline preserved all 13 cases and completed its
-requests; live Jev returned 11 passes and two phrase-boundary reviews. The current
-candidate preserves all 19 cases, joins the two language-specific conditional
-sentences correctly across caption boundaries, and retains already usable captions
-without a surface request. One Spanish proposal substitutes a synonym; the lexical
-gate rejects it and preserves the original caption. Native completion therefore
-remains incomplete, not a combined pass.
+The initial 19-case candidate exposed three problems: a Spanish synonym edit
+(`todavía` became `aún`), a vague line-break review, and a false Jev finding that a
+comma-ended caption ended with a period. The final implementation addresses them:
 
-Live Jev on that saved candidate returned 17 passes, one English phrase review,
-and one erroneous continuation finding. The finding says the first caption ends
-in a period, but the actual output is `If Ana comes,` followed by
-`we can leave together.` in the second caption. The separate conditional-meaning
-question passes. This is an inspected judge error; the original report and its
-nonzero exit status remain intact. No threshold or question was changed to hide it.
+- Literal rules use exact code assertions for intact grammatical spans, caption
+  continuation, capitalization and question marks. Deliberately broken examples
+  prove these checks still fail. Jev checks meaning, negation, uncertainty and
+  conditional relationships. Its margin and model policy were not relaxed.
+- A word-changing or internally recased draft gets exactly one bounded recovery:
+  the model selects among conservative strings constructed from the original
+  source. It cannot introduce synonyms or internal punctuation in this step.
+  Invalid selection still rejects the edit. The local report retains the initial
+  draft, options, selection and final result.
+- Four fresh native cases caught unrequested Spanish ALL CAPS. The common policy
+  now permits initial-letter case changes while preserving internal spelling,
+  acronym and name casing; those cases now receive normal sentence capitalization.
+- Complete Jev coverage is required: missing cases or missing requirement findings
+  cannot produce a combined pass.
 
-The development corpus is small and has been inspected during iteration. It is
-regression evidence, not independent human acceptance or a recognition-accuracy
-measurement. Native fallback, semantic judgment, source/unit gates, and public
-release acceptance remain separate results.
-
-Evidence: ignored `artifacts/evaluation/release-1.0.2-baseline[-jev-auth]`,
-`release-1.0.2-calibration`, `release-1.0.2-candidate-v5[-jev]` and
-`release-1.0.2-audio`. Earlier context and structured-output experiments are retained
-as failed evidence; they are not the release implementation. Public synthetic
-fixtures alone went to Jev. Private cached transcription was checked locally for
-numeric/timing compatibility without sending its content.
+Native evidence: `artifacts/evaluation/release-1.0.2-source-recovery-case-guard`.
+Live Jev evidence: `release-1.0.2-required-jev-final`. Calibration:
+`release-1.0.2-literal-semantic-calibration`. The earlier baseline, v5 failures,
+structured-text/pattern experiments and pre-case-guard results remain intact under
+`artifacts/evaluation/`; failed drafts were not reclassified as passing outputs.
+The first held-out cases are now inspected regression evidence. No claim is made
+of independent bilingual human acceptance or recognition accuracy across films.
+Only authored public synthetic text was sent to Jev.
 
 ## Product behavior
 
 The app still supports macOS 15+. With cleanup enabled, an available Apple Intelligence model on macOS 26+ can improve English/Spanish line breaks, including translated subtitles. NaturalLanguage identifies the subtitle language independently of audio. It protects recognized names and grammatical units before selection. An already-safe top-scored break is retained without inference; otherwise the model chooses among bounded source-derived strings. Reconstruction uses those exact strings, never model-authored words or timestamps.
 
-Punctuation and capitalization are polished with cleanup when needed. Already capitalized, sentence-terminated captions retain their surface. At most three compatible continuous captions (500 characters) share a source-preserving punctuation request, then return to their original word boundaries and timing. Existing punctuation is retained at the same word boundary. It preserves ordered words, accents, quantities, internal apostrophes/hyphens and protected symbols. It rejects added/deleted words, translation, numeric changes and control characters. Punctuation can change meaning, so changes are recorded in the Local report and the app requests review before Save. Protected ASS/karaoke, speaker turns and lyrics bypass inference. Unsupported or uncertain languages, unavailable models, invalid responses and timeouts retain standard output with a notice. Cleanup off skips Apple entirely.
+Punctuation and capitalization are polished with cleanup when needed. Already capitalized, sentence-terminated captions retain their surface. At most three compatible continuous captions (500 characters) share a source-preserving punctuation request, then return to their original word boundaries and timing. Existing punctuation is retained at the same word boundary. It preserves ordered words, accents, quantities, internal apostrophes/hyphens and protected symbols. It rejects added/deleted words, translation, numeric changes, internal recasing and control characters. One source-derived selection can recover a rejected draft; otherwise standard output remains intact. Punctuation can change meaning, so changes are recorded in the Local report and the app requests review before Save. Protected ASS/karaoke, speaker turns and lyrics bypass inference. Unsupported or uncertain languages, unavailable models, invalid responses and timeouts retain standard output with a notice. Cleanup off skips Apple entirely.
 
 Audio-supported spelling changes remain exclusively in Improve's existing acoustic, timing, language, confidence and dictionary gates. This release does not introduce another ASR pass, translation, cross-cue regrouping or invented word timing.
 
 The native helper starts a fresh bounded session per model request and uses greedy generation. Batches contain at most eight requests with a 60-second bound and cancellation. Completed responses are cached in existing private job storage, keyed by source/options, helper hash, OS and available model metadata and validated with a content hash. These are retry caches; an Apple model revision can change independently of OS version.
 
-## Evidence and limits — September 23, 2026
+## Historical 1.0.1 evidence and limits — September 23, 2026
 
 | Check | Result |
 |---|---|
@@ -57,7 +61,7 @@ The native helper starts a fresh bounded session per model request and uses gree
 | Final integrated helper (`release-layout-v7`) | 12/13 Jev passes, one English phrase review, no semantic failures; native requests complete |
 | Product transport | Availability, malformed response, cache binding, cancellation, cleanup-off and protected presentation tests |
 
-The targeted corpus isolates layout for most cases and surface edits for its two punctuation cases; the twelve-cue production smoke in validation exercises automatic punctuation on all eligible captions. The final reviewed examples keep “old station”, “estación central”, “después del último tren” and “Dr. Ana Ruiz” together, and produce “We should wait here until María arrives.” and “Si no viene Ana, nos quedamos aquí.” The unresolved Jev item has a 0.09 probability margin, below the fixed 0.10 threshold, for a break before “after the last train.” It remains review; the command exits nonzero. An intermediate run also falsely marked the complete name on a single line as split. These failures remain recorded and demonstrate why this judge is advisory.
+The targeted corpus isolates layout for most cases and surface edits for its two punctuation cases; the twelve-cue production smoke in validation exercises automatic punctuation on all eligible captions. The final reviewed examples keep “old station”, “estación central”, “después del último tren” and “Dr. Ana Ruiz” together, and produce “We should wait here until María arrives.” and “Si no viene Ana, nos quedamos aquí.” The unresolved Jev item has a 0.09 probability margin, below the fixed 0.10 threshold, for a break before “after the last train.” It remains review; the command exits nonzero. An intermediate run also falsely marked the complete name on a single line as split. These failures remain recorded and explain the advisory policy used for 1.0.1; 1.0.2 instead requires the combined deterministic/native/Jev gate above.
 
 The corpus was used during development and is small: it establishes a bounded improvement in these examples, not accuracy across films. Native tests used AFM 3 Core with a 4,096-token context on Apple Silicon/macOS 27. Layout model calls were roughly one second on this host; punctuation adds more work. This is a quality improvement, not a speed improvement. Keeping safe breaks and caching results reduces repeat work. Full-film latency, clean minimum-memory hardware, actual macOS 26 inference and external bilingual human acceptance remain unmeasured. No private media or transcripts were sent remotely.
 
@@ -90,6 +94,6 @@ Platform is pinned to `0affb6c5652611b87947bd87762d8aa17d35ea32` containing Test
 
 The full allowlisted synthetic corpus is checked before credential access or any remote request. Arbitrary subtitle paths are not accepted. The policy binds fixture, calibration, request-protocol hashes and `jev-1.13.0`. The original 20 calibration examples exposed three false passes for bad line boundaries. Explicit CAPTION/LINE labels replaced raw newline framing, the original validation cases became regressions, and eight fresh validation cases were added. Calibration proposes a policy only after all labels pass; it never silently modifies the committed policy. Provider logging/cache headers are disabled, without claiming they establish a retention guarantee.
 
-Apple documents [availability and context limits](https://developer.apple.com/documentation/foundationmodels/generating-content-and-performing-tasks-with-foundation-models) and [permissive text transformations](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/guardrails/permissivecontenttransformations). Plain string punctuation generation uses that guardrail mode; guided layout still has ordinary guardrails. Rejections preserve standard output. Jev follows TypeSafe's [atomic question](https://docs.typesafe.ai/introduction) and [uncertainty](https://docs.typesafe.ai/confidence) guidance through the [Cloudflare API](https://developers.cloudflare.com/ai/models/typesafe/jev/).
+Apple documents [availability and context limits](https://developer.apple.com/documentation/foundationmodels/generating-content-and-performing-tasks-with-foundation-models) and [permissive text transformations](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel/guardrails/permissivecontenttransformations). Plain string punctuation generation uses that guardrail mode; guided layout and bounded recovery use ordinary guardrails. Rejections preserve standard output. Jev follows TypeSafe's [atomic question](https://docs.typesafe.ai/introduction) and [uncertainty](https://docs.typesafe.ai/confidence) guidance through the [Cloudflare API](https://developers.cloudflare.com/ai/models/typesafe/jev/).
 
 Ignored local evidence is retained under `artifacts/evaluation/`: initial baseline/native runs, `jev-calibration-initial`, `jev-calibration-lines-v2`, `baseline-jev`, `apple-surface-v2[-jev]` and `release-layout-v3` through `v7` with corresponding live evidence. These include requests, raw responses, output subtitles, helper snapshots, environment hashes and readable reviews. Integrated bundle/GUI/release evidence is recorded separately in [validation](validation.md).

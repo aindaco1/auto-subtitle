@@ -10,6 +10,10 @@
   exact words and timestamps, so a caption boundary need not become a sentence ending.
 - Keep already capitalized, punctuated captions as written. Reject edits that remove
   or move existing punctuation, and retain standard output when a proposal is unsafe.
+- Recover unsafe surface drafts with one selection among original-word options, and
+  reject unrequested ALL CAPS while preserving existing acronym and name casing.
+- Require calibrated Jev semantic checks together with exact punctuation and phrase
+  checks before release; no private subtitles are sent to the evaluator.
 - Validate both word and token timing evidence, reject invalid confidence values,
   and require strong confidence in the second recognition pass before applying
   spelling corrections or recovering missing dialogue.

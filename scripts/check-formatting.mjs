@@ -114,13 +114,15 @@ async function corpus() {
 }
 
 function reviewMarkdown(report,jev,summary) {
-  const lines=['# Subtitle formatting evaluation','',`Provider: ${report.provider}. Deterministic checks: ${summary.deterministic?'pass':'fail'}. Native calls: ${summary.native}. Jev: ${summary.semantic}.`,'',
+  const lines=['# Subtitle formatting evaluation','',`Provider: ${report.provider}. Source preservation: ${summary.deterministic?'pass':'fail'}. Literal formatting: ${summary.formatting?'pass':'fail'}. Native calls: ${summary.native}. Jev: ${summary.semantic}.`,'',
     'Development evidence only. Punctuation/capitalization proposals require human review. Audio-supported wording corrections remain in the existing Improve pipeline; this text-only probe cannot verify audio.',''];
   for(const [i,fixture] of fixtures.entries()) {
     const row=report.cases[i], evaluation=jev.cases.find(c=>c.id===fixture.id);
     lines.push(`## ${fixture.id}`,'','Source:','```',fixture.source.trim(),'```','','Candidate:','```',renderSubtitle(baseline(fixture).document,row.cues).trim(),'```','');
     for(const item of row.proposals) lines.push(`- ${item.mode}: ${item.disposition}. ${item.reason}`);
     for(const failure of row.failures) lines.push(`- Deterministic failure: ${failure}`);
+    for(const failure of row.formattingFailures??[]) lines.push(`- Literal formatting failure: ${failure}`);
+    for(const response of row.native.filter(r=>r.recovery)) lines.push(`- Source-derived recovery: ${response.recovery.accepted?'selected a bounded option':'failed; original retained'}. Draft retained in native evidence.`);
     for(const warning of row.warnings) lines.push(`- ${warning.id}: ${warning.issues.join('; ')}`);
     for(const [key,finding] of Object.entries(evaluation?.result?.findings??{})) lines.push(`- Jev ${key}: ${finding.decision} (margin ${finding.margin.toFixed(3)})`);
     lines.push('');
@@ -158,8 +160,8 @@ try {
     await save('evaluated-report.json',report);
     await save('summary.json',summary);
     await save('review.md',reviewMarkdown(report,jev,summary));
-    console.log(`${report.provider}: ${output}\nDeterministic: ${summary.deterministic}; native: ${summary.native}; Jev: ${summary.semantic}; release accepted: false`);
-    if(!summary.deterministic||summary.native==='incomplete'||(args.live&&!summary.passed)) process.exitCode=1;
+    console.log(`${report.provider}: ${output}\nSource preservation: ${summary.deterministic}; literal formatting: ${summary.formatting}; native: ${summary.native}; Jev: ${summary.semantic}; release accepted: false`);
+    if(!summary.deterministic||(report.provider!=='deterministic'&&!summary.formatting)||summary.native==='incomplete'||(args.live&&!summary.passed)) process.exitCode=1;
   }
 } catch(error) {
   await save('error.json',{complete:false,message:error.message,releaseAccepted:false});
