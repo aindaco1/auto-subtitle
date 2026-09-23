@@ -1,6 +1,6 @@
 // Shared production/development policy. No model transport or evaluator dependency.
 import { visibleText } from './subtitles.mjs';
-import { wrapOptions, protectedText, length } from './quality.mjs';
+import { wrap, wrapOptions, protectedText, length } from './quality.mjs';
 
 export const flat = text => text.replace(/\n/g,' ');
 const lexemes = text => text.normalize('NFC').toLocaleLowerCase().match(/[\p{L}\p{M}\p{N}]+(?:['’\-][\p{L}\p{M}\p{N}]+)*/gu) ?? [];
@@ -35,6 +35,7 @@ export function applyProposal(fixture, cue, response, request) {
     text=response.text;
     if(!sameWords(source,text) || !text.trim() || /\n/.test(text)) return {cue,disposition:'rejected',reason:'Punctuation proposal changed words, numbers, protected symbols or structure'};
     if(text===flat(source)) return {cue,disposition:'unchanged',reason:'Punctuation and capitalization already match'};
+    text=wrap(text); // Preserve normal wrapping even when only one valid layout exists.
   } else return {cue,disposition:'rejected',reason:'Unsupported proposal mode'};
   const updated={...cue,text:fixture.format==='ass'?text.replace(/\n/g,'\\N'):text};
   return {cue:updated,disposition:updated.text===cue.text?'unchanged':request.mode==='punctuation'?'review':'accepted',reason:request.mode==='punctuation'?'Punctuation can change meaning; human review required':'Selected an exact source-preserving line break'};

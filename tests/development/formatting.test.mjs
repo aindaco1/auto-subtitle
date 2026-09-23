@@ -68,3 +68,11 @@ test('audio-supported correction safeguards remain authoritative for spelling, i
   assert.equal(dictionaryAllowsCorrection(source,candidate,{available:false}),false);
   // These are synthetic gate checks, not real audio or correction-precision measurements.
 });
+test('punctuation retains deterministic wrapping when only one valid break exists',()=>{
+  const source='A'.repeat(40)+' '+ 'b'.repeat(40);
+  const cue={id:'one-break',start:0,end:7000,text:source};
+  const request={id:cue.id,mode:'punctuation'};
+  const result=applyProposal({format:'srt',language:'en',punctuation:true},cue,{schema:1,...request,status:'complete',text:source+'.'},request);
+  assert.equal(choices(source+'.').length,1);
+  assert.equal(result.cue.text,'A'.repeat(40)+'\n'+'b'.repeat(40)+'.');
+});
