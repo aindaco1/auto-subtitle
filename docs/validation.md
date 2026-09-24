@@ -2,27 +2,58 @@
 
 Recorded September 7–24, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each section distinguishes local, provider and installed-artifact evidence. Clean macOS 15 and human subtitle acceptance remain separate.
 
-## 1.0.3 UI adjustments — September 24, 2026
+## 1.0.3 release checks — September 24, 2026
 
-- All 76 Node, 29 Python and six Swift tests pass. The local app build passes
-  bundled-runtime and strict ad-hoc signature checks. A fresh 23-case native corpus
+- All 76 Node, 29 Python and six Swift tests pass. A fresh 23-case native corpus
   passes source preservation, literal formatting, native completion and live Jev
-  checks at the unchanged 0.10 threshold and committed calibration policy.
-- Native visual review confirms equal header button heights, the simplified
-  diagnostic copy and Send report action, and Check installation in place of
-  setup actions for both installed models.
-- Both installation checks finish successfully through the existing engine and
-  leave the model sheet open. The diagnostic preview still loads normally.
-- A subsequent local rebuild passes bundle/signature checks after moving Improve
-  accuracy below Export format with visible same-language guidance. Native review
-  confirms it starts unchecked, becomes unchecked and disabled when subtitles are
-  marked as a translation, and is absent in Generate mode.
-- No diagnostic was submitted, model downloaded, or release published. Delivery
-  receipt wording is covered by the existing mocked reporting test; this pass
-  does not establish fresh installation or clean macOS 15 acceptance.
+  checks at the unchanged 0.10 threshold and committed calibration policy. The
+  final signed helper reproduces all 19 evaluated request batches exactly.
+- Native visual review confirms equal header button heights, simplified diagnostic
+  copy and Send report, and Check installation for both installed models. Both
+  checks finish through the existing engine and leave the model sheet open.
+- Improve accuracy appears below Export format with visible same-language guidance.
+  It starts unchecked, is unchecked and disabled for translated subtitles, and is
+  absent in Generate mode.
+- The signed English and Spanish synthetic-audio pipelines preserve original inputs
+  and match 1.0.2. Native Generate creates two captions from the MP4 fixture; the
+  user completes Save. The saved SRT exactly matches the current job and the prior
+  release's output for that same MP4. This is pipeline evidence, not a recognition
+  accuracy claim.
+- The signed engine aligns translated ASS while retaining Spanish wording, timing
+  and its comment, adding only a line break. The short sample remains explicitly
+  uncertain for timing. Original input hashes are unchanged. The native ASS picker
+  could not be completed through desktop automation; this check used the bundled
+  engine directly.
+- The native diagnostic preview reports 1.0.3/build 10003 and its generated JSON
+  passes privacy review. The reviewed source JSON is retained locally. The native
+  JSON Save dialog remains disabled to automation, so this is not a fresh native
+  JSON-export acceptance claim. No diagnostic was submitted or model downloaded.
+  The user-assisted SRT Save succeeded in the unchanged native panel code.
 
-Candidate evidence: `artifacts/releases/1.0.3/` and
-`artifacts/evaluation/release-1.0.3-{native,jev}/`.
+[CI 36015695350](https://github.com/aindaco1/auto-subtitle/actions/runs/36015695350)
+passed all three lanes for immutable release source
+`f871cfc7702e1b2ab559a291bbdef11501dff6fc`.
+The [published 1.0.3 release](https://github.com/aindaco1/auto-subtitle/releases/tag/v1.0.3)
+contains five verified assets. Apple accepted the app and DMG notarizations without
+warnings. Fresh unauthenticated downloads pass every checksum, byte-for-byte latest
+feed comparison, Sparkle Ed25519 archive verification, strict mounted signatures,
+staples, Gatekeeper and contained-runtime imports. Final DMG SHA-256:
+`b033c739e71ecfd7126418dde529c3edef87113ca52531e328d87bc940265a24`.
+
+The installed 1.0.2/build 10002 finds the public 1.0.3 update. After Install Update,
+the desktop control tool times out reading the updater. Installation/relaunch
+acceptance remains pending, and the explicit 1.0.2 rollback app is retained.
+
+Nine obsolete generated items (about 1.17 GiB of reported allocated size) were
+moved recoverably to a dedicated Trash folder with an original-path restore map:
+three superseded build backups, the previous DMG, four scratch logs and the duplicate
+draft download. Trash has not been emptied. The current release, installed and
+local testing app, build/test caches, runtimes, model and job stores, original
+media, saved SRT and compact fixtures/evidence remain. No branch was proven stale:
+`main` and the separate dirty `codex/shared-native-speech` worktree are preserved.
+
+Clean macOS 15 and human subtitle acceptance remain separate. Detailed evidence is
+under `artifacts/releases/1.0.3/` and `artifacts/evaluation/release-1.0.3-{native,jev}/`.
 
 ## 1.0.2 release checks — September 23, 2026
 
