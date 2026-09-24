@@ -43,5 +43,5 @@ export async function sendDiagnostic(file,{fetcher=fetch}={}) {
   for await(const bytes of response.body){count+=bytes.length;if(count>4096)throw new Error('Invalid reporting receipt.');text+=new TextDecoder().decode(bytes);}
   const receipt=JSON.parse(text);
   if(receipt.ok!==true||receipt.reportId!==report.id||!Number.isSafeInteger(receipt.issueNumber)||receipt.issueNumber<1||!['created','updated','duplicate'].includes(receipt.action))throw new Error('Invalid reporting receipt.');
-  return {type:'report-receipt',issueURL:`https://github.com/aindaco1/auto-subtitle/issues/${receipt.issueNumber}`,summary:receipt.action==='created'?'GitHub issue created.':receipt.action==='duplicate'?'This report was already accepted; it was not counted again.':'Report added to the matching GitHub issue.'};
+  return {type:'report-receipt',issueURL:`https://github.com/aindaco1/auto-subtitle/issues/${receipt.issueNumber}`,summary:receipt.action==='duplicate'?'This report has already been sent.':'Report sent. Thank you.'};
 }

@@ -24,7 +24,9 @@ Timing-only alignment needs no model. For Generate or Improve, open **Speech mod
 
 Generate’s **Options → Repair language mismatches** is on by default. **Speech models** can find, import, or download the optional Whisper large-v3-turbo model (about 1.62 GB). Likely app storage, MacWhisper, whisper.cpp, Hugging Face and Downloads locations are searched; existing files must match the pinned publisher size and SHA-256 before reuse. Both models can be downloaded directly through the app without another transcription app installed. No model downloads happen automatically. Without this model, Generate still flags suspicious passages and preserves their wording. Genuine spoken language switches are never automatically translated.
 
-The app retains local checkpoints for retry. The **Local report** contains subtitle text and paths; use **Help & diagnostics → Export JSON** for a shareable report. Sending to GitHub is an explicit action after reviewing that JSON. See [privacy and reporting](docs/privacy.md).
+Installed models show **Check installation** in place of setup actions. This reuses the existing local model verification and discovery; if no valid copy is found, Find, Import and Download become available again. The sheet stays open after setup so you can also configure language repair.
+
+The app retains local checkpoints for retry. The **Local report** contains subtitle text and paths; use **Help & diagnostics → Export JSON** for a shareable report. **Send report** is an explicit action after reviewing that JSON. See [privacy and reporting](docs/privacy.md).
 
 ## Develop
 

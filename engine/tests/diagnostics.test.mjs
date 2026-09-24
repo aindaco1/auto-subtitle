@@ -57,7 +57,7 @@ test('Reviewed current state and failures can send; receipt is bounded, correlat
   }});
   assert.equal(receipt.issueURL,'https://github.com/aindaco1/auto-subtitle/issues/9');
   const duplicate=await sendDiagnostic(file,{fetcher:async()=>new Response(JSON.stringify({ok:true,reportId:id,action:'duplicate',issueNumber:9}))});
-  assert.match(duplicate.summary,/not counted again/);
+  assert.match(duplicate.summary,/already been sent/);
   await assert.rejects(sendDiagnostic(file,{fetcher:async()=>new Response(JSON.stringify({ok:true,reportId:'wrong',action:'created',issueNumber:3}))}),/receipt/);
 });
 test('Current-state grouping distinguishes processing state without personal identifiers',async()=>{

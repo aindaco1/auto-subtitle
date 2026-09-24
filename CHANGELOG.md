@@ -1,5 +1,13 @@
 # Changelog
 
+## Auto Subtitle 1.0.3
+
+- Simplify diagnostic reporting labels and confirmations.
+- Match the header button sizes and replace installed models' setup actions with
+  Check installation. Keep the model sheet open after setup for optional repair.
+- Place the optional Improve accuracy checkbox below Export format with visible
+  same-language guidance. It remains off by default and unavailable for translations.
+
 ## Auto Subtitle 1.0.2
 
 - Adopt Platform's native speech and Apple generation modules. Preserve verbatim

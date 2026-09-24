@@ -103,6 +103,7 @@ import AutoSubtitleCore
         } catch { self.error = error.localizedDescription; busy = false }
     }
     func setupModel(importExisting: Bool) {
+        guard !busy, !modelReady else { return }
         if importExisting {
             let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false
             panel.message = "Choose the folder containing the Core ML Parakeet v3 model."
@@ -112,16 +113,19 @@ import AutoSubtitleCore
         } else { installModel(source: nil) }
     }
     private func installModel(source: URL?) {
+        guard !busy, !modelReady else { return }
         let args = ["model-install"] + (source.map { [$0.path] } ?? [])
         let importExisting = source != nil
         busy = true; stage = importExisting ? "Verifying model…" : "Downloading model…"; fraction = nil; error = nil
         process = launch(args, tracked: true) { [weak self] event in self?.receive(event) }
     }
     func findModel() {
-        busy = true; stage = "Looking for a compatible local model…"; fraction = nil; error = nil
+        guard !busy else { return }
+        busy = true; stage = modelReady ? "Checking speech model…" : "Looking for a compatible local model…"; fraction = nil; error = nil
         process = launch(["model-status"], tracked: true) { [weak self] event in self?.receive(event) }
     }
     func setupWhisper(findOnly: Bool = false, importExisting: Bool = false) {
+        guard !busy, findOnly || !whisperReady else { return }
         if importExisting {
             let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = true
             panel.message = "Choose the Whisper large-v3-turbo GGML file or its folder. Only the verified model is accepted."
@@ -131,8 +135,9 @@ import AutoSubtitleCore
         } else { installWhisper(findOnly: findOnly, source: nil) }
     }
     private func installWhisper(findOnly: Bool, source: URL?) {
+        guard !busy, findOnly || !whisperReady else { return }
         let args = [findOnly ? "whisper-status" : "whisper-install"] + (source.map { [$0.path] } ?? [])
-        busy = true; stage = findOnly ? "Looking for a language repair model…" : "Setting up language repair model…"; fraction = nil; error = nil
+        busy = true; stage = findOnly ? (whisperReady ? "Checking language repair model…" : "Looking for a language repair model…") : "Setting up language repair model…"; fraction = nil; error = nil
         process = launch(args, tracked: true) { [weak self] event in self?.receive(event) }
     }
     private func receive(_ event: EngineEvent) {
@@ -140,7 +145,7 @@ import AutoSubtitleCore
         case "progress": stage = event.stage ?? "Processing…"; fraction = event.fraction
         case "error": error = event.message; lastFailureCode = cancelled ? "CANCELLED" : event.code ?? "PROCESSING_FAILED"; lastTool = event.tool ?? "none"; lastSignal = event.signal ?? "none"; lastExitCode = event.exitCode ?? -1; if event.code == "MODEL_MISSING" { showModel = true; modelReady = false }
         case "result": result = event; stage = event.summary ?? "Ready to save"; fraction = 1; whisperReady = FileManager.default.fileExists(atPath: work.appendingPathComponent("Models/whisper-large-v3-turbo/ggml-large-v3-turbo.bin").path)
-        case "model": modelReady = event.path != nil; if modelReady { showModel = false; stage = "Speech model ready" } else { stage = "No compatible model found. Import one or download below." }
+        case "model": modelReady = event.path != nil; stage = modelReady ? "Speech model ready" : "No compatible model found. Import one or download below."
         case "whisper-model": whisperReady = event.path != nil; stage = whisperReady ? "Language repair model ready" : "No compatible language repair model found. Import one or download below."
         default: break
         }

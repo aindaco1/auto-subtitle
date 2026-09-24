@@ -1,6 +1,28 @@
 # Validation
 
-Recorded September 7–23, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each section distinguishes local, provider and installed-artifact evidence. Clean macOS 15 and human subtitle acceptance remain separate.
+Recorded September 7–24, 2026 on Apple Silicon, macOS 26.6.2 and 27. Each section distinguishes local, provider and installed-artifact evidence. Clean macOS 15 and human subtitle acceptance remain separate.
+
+## 1.0.3 UI adjustments — September 24, 2026
+
+- All 76 Node, 29 Python and six Swift tests pass. The local app build passes
+  bundled-runtime and strict ad-hoc signature checks. A fresh 23-case native corpus
+  passes source preservation, literal formatting, native completion and live Jev
+  checks at the unchanged 0.10 threshold and committed calibration policy.
+- Native visual review confirms equal header button heights, the simplified
+  diagnostic copy and Send report action, and Check installation in place of
+  setup actions for both installed models.
+- Both installation checks finish successfully through the existing engine and
+  leave the model sheet open. The diagnostic preview still loads normally.
+- A subsequent local rebuild passes bundle/signature checks after moving Improve
+  accuracy below Export format with visible same-language guidance. Native review
+  confirms it starts unchecked, becomes unchecked and disabled when subtitles are
+  marked as a translation, and is absent in Generate mode.
+- No diagnostic was submitted, model downloaded, or release published. Delivery
+  receipt wording is covered by the existing mocked reporting test; this pass
+  does not establish fresh installation or clean macOS 15 acceptance.
+
+Candidate evidence: `artifacts/releases/1.0.3/` and
+`artifacts/evaluation/release-1.0.3-{native,jev}/`.
 
 ## 1.0.2 release checks — September 23, 2026
 

@@ -40,11 +40,11 @@ struct MainWindow: View {
                     Spacer()
                     Button { model.showDiagnostics = true; model.prepareDiagnostic() } label: { Image(systemName: "questionmark.circle") }.help("Export current state or report a crash").accessibilityLabel("Help and diagnostics")
                     Button(action: updates.checkForUpdates) { Image(systemName: "arrow.down.circle") }
-                        .help("Check for updates from official GitHub releases").accessibilityLabel("Check for updates")
+                        .help("Check for updates").accessibilityLabel("Check for updates")
                         .disabled(model.busy || model.diagnosticBusy || !updates.canCheckForUpdates)
-                    Button { model.showModel = true } label: { Label(model.modelReady ? "Model ready" : "Speech model", systemImage: model.modelReady ? "checkmark.circle" : "arrow.down.circle") }.controlSize(.small)
-                        .disabled(model.busy).help("Find, import or download the local Parakeet speech model")
-                }
+                    Button { model.showModel = true } label: { Label(model.modelReady ? "Model ready" : "Speech model", systemImage: model.modelReady ? "checkmark.circle" : "arrow.down.circle") }
+                        .disabled(model.busy).help("Manage local speech models")
+                }.controlSize(.regular)
                 Picker("Workflow", selection: $model.mode) { Text("Align subtitles").tag("align"); Text("Generate subtitles").tag("generate") }
                     .pickerStyle(.segmented).disabled(model.busy)
                 VStack(alignment: .leading, spacing: 14) {
@@ -60,13 +60,14 @@ struct MainWindow: View {
                     Picker("Audio track", selection: $model.stream) { ForEach(model.tracks) { Text($0.label).tag($0.index) } }.disabled(model.busy)
                 }
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Picker("Export", selection: $model.format) { Text("SRT").tag("srt"); Text("ASS").tag("ass") }.frame(width: 180)
-                        Spacer()
-                        if model.mode == "align" { Toggle("Improve accuracy", isOn: $model.improve).disabled(model.translated).help("Check wording against the audio. Available for subtitles in the spoken language.") }
-                    }
+                    Picker("Export format", selection: $model.format) { Text("SRT").tag("srt"); Text("ASS").tag("ass") }.frame(width: 220)
                     if model.mode == "align" {
-                        Text(model.improve ? "Conservatively check wording against the audio." : "Fix timing while preserving wording and subtitle language.").font(.callout).foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Toggle("Improve accuracy", isOn: $model.improve).disabled(model.translated)
+                            Text("Checks wording against the video’s audio. Use only when the subtitles and audio are in the same language; leave off for translations.")
+                                .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                                .padding(.leading, 20)
+                        }
                     } else { Text("Create subtitles in the spoken language using local Parakeet recognition.").font(.callout).foregroundStyle(.secondary) }
                     DisclosureGroup("Options", isExpanded: $options) {
                         VStack(alignment: .leading, spacing: 12) {
@@ -147,27 +148,37 @@ struct MainWindow: View {
                 .foregroundStyle(.secondary)
             if model.busy { Text(model.stage); if let fraction = model.fraction { ProgressView(value: fraction) } else { ProgressView() } }
             if let error = model.error { Text(error).font(.callout).foregroundStyle(.orange).textSelection(.enabled) }
-            HStack { Button("Find existing", action: model.findModel); Button("Import existing…") { model.setupModel(importExisting: true) }; Button("Download") { model.setupModel(importExisting: false) }.buttonStyle(.borderedProminent) }.disabled(model.busy)
+            modelActions(ready: model.modelReady, find: model.findModel,
+                         importExisting: { model.setupModel(importExisting: true) },
+                         download: { model.setupModel(importExisting: false) })
             Divider()
             Text("Language repair · optional").font(.headline)
             Text(model.whisperReady ? "Whisper Turbo is installed for checking suspicious passages." : "Whisper Turbo checks suspicious language changes. Find an existing copy or download the verified model (1.62 GB). Generation also works without it, with review notices.").font(.callout).foregroundStyle(.secondary)
             Link("OpenAI Whisper · whisper.cpp conversion · MIT", destination: URL(string: "https://huggingface.co/ggerganov/whisper.cpp/tree/5359861c739e955e79d9a303bcbc70fb988958b1")!).font(.caption)
-            HStack {
-                Button("Find repair model") { model.setupWhisper(findOnly: true) }
-                Button("Import repair model…") { model.setupWhisper(importExisting: true) }
-                Button("Download repair model") { model.setupWhisper() }
-            }.disabled(model.busy)
+            modelActions(ready: model.whisperReady, find: { model.setupWhisper(findOnly: true) },
+                         importExisting: { model.setupWhisper(importExisting: true) },
+                         download: { model.setupWhisper() })
             HStack { Text("Models are verified before use. Your audio stays local.").font(.caption).foregroundStyle(.secondary); Spacer(); if model.busy { Button("Cancel", action: model.cancel) } else { Button("Done") { model.showModel = false }.keyboardShortcut(.defaultAction) } }
         }.padding(26).frame(width: 570)
+    }
+    func modelActions(ready: Bool, find: @escaping () -> Void,
+                      importExisting: @escaping () -> Void, download: @escaping () -> Void) -> some View {
+        HStack {
+            Button(ready ? "Check installation" : "Find existing", action: find)
+            if !ready {
+                Button("Import existing…", action: importExisting)
+                Button("Download", action: download).buttonStyle(.borderedProminent)
+            }
+        }.disabled(model.busy)
     }
     var diagnosticsSheet: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Help & diagnostics").font(.title2)
-            Text("Review and send the current state for testing, or import an Auto Subtitle crash log. Reports contain app and system versions, processing options, and error categories.").font(.callout)
+            Text("Send a diagnostic report to help improve Auto Subtitle, or import a crash log. Reports contain app and system versions, processing options, and error categories.").font(.callout)
             Text("No filenames, paths, media, subtitle text, raw logs, or personal identifiers are included.").font(.callout).foregroundStyle(.secondary)
             ScrollView { Text(model.diagnosticPreview.isEmpty ? "Preparing snapshot…" : model.diagnosticPreview).font(.system(.caption, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading).padding(12) }.frame(height: 250).background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
             Text(model.diagnosticStatus).font(.callout)
-            if let url = model.diagnosticIssueURL { Link("Open GitHub issue", destination: url) }
+            if let url = model.diagnosticIssueURL { Link("View report", destination: url) }
             HStack {
                 Button("Refresh state") { model.prepareDiagnostic() }
                 Button("Import crash log…") { model.prepareDiagnostic(importCrash: true) }
@@ -175,9 +186,8 @@ struct MainWindow: View {
             }.disabled(model.diagnosticBusy)
             Button("Clear local job data…", action: model.clearLocalData).buttonStyle(.link).font(.caption).disabled(model.busy || model.diagnosticBusy)
             HStack {
-                Text("Sending creates or updates an issue in aindaco1/auto-subtitle on GitHub.").font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button("Send to GitHub", action: model.sendDiagnostic).buttonStyle(.borderedProminent).disabled(!model.diagnosticCanSend || model.diagnosticBusy)
+                Button("Send report", action: model.sendDiagnostic).buttonStyle(.borderedProminent).disabled(!model.diagnosticCanSend || model.diagnosticBusy)
                 Button("Done") { model.showDiagnostics = false }.keyboardShortcut(.cancelAction)
             }
         }.padding(24).frame(width: 630)
