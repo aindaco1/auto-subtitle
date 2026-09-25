@@ -100,6 +100,20 @@ def notarize(artifact, label):
             time.sleep(10)
         raise TimeoutError('Notarization is still pending. Retain the submission ID and check it before resubmitting.')
 
+def detach_created_image(image):
+    # Newer DiskImages versions can leave an image attached after creation.
+    # Detach only this exact image, never an unrelated mounted volume.
+    inventory = plistlib.loads(subprocess.check_output(['hdiutil', 'info', '-plist']))
+    expected = image.resolve()
+    for entry in inventory.get('images', []):
+        if Path(entry.get('image-path', '')).resolve() != expected:
+            continue
+        device = next((item.get('dev-entry', '') for item in entry.get('system-entities', [])
+                       if re.fullmatch(r'/dev/disk\d+', item.get('dev-entry', ''))), None)
+        if device is None:
+            raise RuntimeError('Created disk image is attached without a whole-disk device.')
+        run('hdiutil', 'detach', device)
+
 def package(app):
     version = check_version(app)
     DIST.mkdir(exist_ok=True)
@@ -124,6 +138,7 @@ def package(app):
         image = folder / output.name
         # APFS preserves hidden runtime files without HFS+ FinderInfo synthesis.
         run('hdiutil', 'create', '-fs', 'APFS', '-format', 'UDZO', '-srcfolder', stage, '-volname', 'Auto Subtitle', image)
+        detach_created_image(image)
         run('codesign', '--force', '--timestamp', '--sign', IDENTITY, image)
         verify_contents(image)
         notarize(image, 'DMG')
