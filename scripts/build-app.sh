@@ -38,6 +38,7 @@ cp shared/dust-wave-platform/native/LICENSE.Record "$app/Contents/Resources/engi
 mkdir -p "$app/Contents/Resources/Licenses"
 cp shared/dust-wave-platform/LICENSE "$app/Contents/Resources/Licenses/DustWavePlatform-MIT.txt"
 cp shared/dust-wave-platform/desktop/LICENSE.* "$app/Contents/Resources/Licenses/"
+cp shared/dust-wave-platform/support/LICENSE.* "$app/Contents/Resources/Licenses/"
 cp THIRD_PARTY_NOTICES.md "$app/Contents/Resources/engine-root/THIRD_PARTY_NOTICES.md"
 python3 scripts/verify-bundle.py "$app"
 # Local build: an ad-hoc signature is sufficient. Distribution signing is separate.

@@ -6,8 +6,8 @@
 <key>CFBundleIdentifier</key><string>com.dustwave.autosubtitle</string>
 <key>CFBundleExecutable</key><string>AutoSubtitle</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.0.4</string>
-<key>CFBundleVersion</key><string>10004</string>
+<key>CFBundleShortVersionString</key><string>1.0.5</string>
+<key>CFBundleVersion</key><string>10005</string>
 <key>SUFeedURL</key><string>https://github.com/aindaco1/auto-subtitle/releases/latest/download/appcast.xml</string>
 <key>SUPublicEDKey</key><string>sjNN7phLufkXkrJJd9lrA1iLWF3uzJQw9t3xDolMkO4=</string>
 <key>SUEnableAutomaticChecks</key><true/>
