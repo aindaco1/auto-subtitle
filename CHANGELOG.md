@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.5] - 2026-09-25
+
+- Adopt the shared Apple support core through the compatible desktop diagnostics API. Preserve reviewed reports, explicit sending, update consent and existing app behavior.
+
 ## Auto Subtitle 1.0.4
 
 - Detach a newly created installer image before signing and verification when macOS leaves it mounted.
