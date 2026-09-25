@@ -28,8 +28,16 @@ for name in engine resources runtime; do
   ditto --norsrc --noextattr "$name" "$app/Contents/Resources/engine-root/$name"
 done
 ditto --norsrc --noextattr shared/dust-wave-platform/packages/timed-text "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/timed-text"
+mkdir -p "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/desktop-core/src" "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/worker-core/src"
+cp shared/dust-wave-platform/packages/desktop-core/src/report-client.js "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/desktop-core/src/"
+cp shared/dust-wave-platform/packages/desktop-core/package.json "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/desktop-core/"
+cp shared/dust-wave-platform/packages/worker-core/src/{response-body,bounded-stream}.js "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/worker-core/src/"
+cp shared/dust-wave-platform/packages/worker-core/package.json "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/worker-core/"
 cp shared/dust-wave-platform/LICENSE "$app/Contents/Resources/engine-root/shared/dust-wave-platform/LICENSE"
 cp shared/dust-wave-platform/native/LICENSE.Record "$app/Contents/Resources/engine-root/shared/dust-wave-platform/LICENSE.Record"
+mkdir -p "$app/Contents/Resources/Licenses"
+cp shared/dust-wave-platform/LICENSE "$app/Contents/Resources/Licenses/DustWavePlatform-MIT.txt"
+cp shared/dust-wave-platform/desktop/LICENSE.* "$app/Contents/Resources/Licenses/"
 cp THIRD_PARTY_NOTICES.md "$app/Contents/Resources/engine-root/THIRD_PARTY_NOTICES.md"
 python3 scripts/verify-bundle.py "$app"
 # Local build: an ad-hoc signature is sufficient. Distribution signing is separate.

@@ -1,5 +1,9 @@
 # Third-party notices
 
+## Shared desktop services
+
+Dust Wave Platform desktop 0.2.0 provides shared updater and reviewed-report mechanics under MIT. Original Record, Auto Subtitle, CutNotes and Podcast Visualizer notices remain in `shared/dust-wave-platform/desktop/LICENSE.*` and are packaged with Platform's MIT license in `Contents/Resources/Licenses`. Desktop Core 0.1.0 also supplies the Node reviewed-report client; its packaged runtime includes the Platform MIT license.
+
 Full notices ship in `resources/licenses/` and in the bundled runtime's package metadata.
 
 | Component | Version / revision | License |

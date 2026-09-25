@@ -1,3 +1,4 @@
+import { sendReviewedReport } from '../shared/dust-wave-platform/packages/desktop-core/src/report-client.js';
 import { writeFile, mkdir, open } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import path from 'node:path';
@@ -37,11 +38,6 @@ export async function prepareDiagnostic(file,incident) {
 export async function sendDiagnostic(file,{fetcher=fetch}={}) {
   const raw=await boundedFile(file,4096);
   const report=validateAutoSubtitleReport(JSON.parse(raw));
-  const response=await fetcher(endpoint,{method:'POST',redirect:'error',credentials:'omit',headers:{'Content-Type':'application/json','Origin':'https://crash.dustwave.xyz'},body:JSON.stringify(report),signal:AbortSignal.timeout(15000)});
-  if(!response.ok||!response.body)throw new Error('Report delivery was not confirmed. Keep this report and retry later.');
-  let text='',count=0;
-  for await(const bytes of response.body){count+=bytes.length;if(count>4096)throw new Error('Invalid reporting receipt.');text+=new TextDecoder().decode(bytes);}
-  const receipt=JSON.parse(text);
-  if(receipt.ok!==true||receipt.reportId!==report.id||!Number.isSafeInteger(receipt.issueNumber)||receipt.issueNumber<1||!['created','updated','duplicate'].includes(receipt.action))throw new Error('Invalid reporting receipt.');
+  const receipt = await sendReviewedReport(endpoint, report, { fetcher, headers: { Origin: 'https://crash.dustwave.xyz' } });
   return {type:'report-receipt',issueURL:`https://github.com/aindaco1/auto-subtitle/issues/${receipt.issueNumber}`,summary:receipt.action==='duplicate'?'This report has already been sent.':'Report sent. Thank you.'};
 }

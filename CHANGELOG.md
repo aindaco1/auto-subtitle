@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Share sparkle controller, launch policy and the desktop core reviewed-report sender through the pinned Dust Wave Platform dependency. Preserve existing update consent and product-specific diagnostics behavior. See the [migration record](docs/SHARED_DESKTOP_MIGRATION.md).
+
 ## Auto Subtitle 1.0.3
 
 - Simplify diagnostic reporting labels and confirmations.

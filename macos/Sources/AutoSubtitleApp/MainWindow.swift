@@ -23,7 +23,7 @@ enum Theme {
 }
 struct MainWindow: View {
     @StateObject var model = AppModel()
-    @StateObject var updates = AppUpdateController()
+    @StateObject var updates = AppUpdateController(busyErrorDomain: "AutoSubtitle.Update", busyErrorMessage: "Finish or cancel the current operation, then check for updates.")
     @Environment(\.colorScheme) var scheme
     @State private var options = false
     @State private var hovering = false
