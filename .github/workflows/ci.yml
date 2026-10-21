@@ -27,6 +27,8 @@ jobs:
           version: '0.13.4'
           python-version: '3.11'
       - run: npm test
+      - name: Verify staged release assembly
+        run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
       - run: npm run test:quality
       - run: uv run --no-project --python 3.11 --with pytest --with-requirements requirements-sync.lock python -m pytest -q
   macos:

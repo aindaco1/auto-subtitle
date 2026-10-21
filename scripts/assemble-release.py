@@ -44,7 +44,8 @@ with tempfile.TemporaryDirectory(prefix='auto-subtitle-assemble-') as temporary:
         assert existing.get('digest') == 'sha256:' + checksum
     else:
         gh('release', 'upload', tag, str(image))
-    assets = json.loads(gh('api', f'repos/{repository}/releases/{release["id"]}/assets'))
+    asset_pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{repository}/releases/{release["id"]}/assets?per_page=100'))
+    assets = [asset for page in asset_pages for asset in page]
     uploaded = next(a for a in assets if a['name'] == name)
     assert uploaded['state'] == 'uploaded' and uploaded['digest'] == 'sha256:' + checksum
     for part in parts:
