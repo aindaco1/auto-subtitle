@@ -2,6 +2,8 @@
 
 ## [1.0.6] - 2026-10-21
 
+- Adopt Platform 0.44.0 Node subprocess lifecycle while retaining the offline environment, JSON progress, bounded output and cancellation. Include the exact helper in the signed app bundle.
+
 - Update the bundled Node runtime to 24.22.1, which rejects the compromised eMudhra CA keys.
 - Add opt-in acceptance for all 12 disclosed TLS chains through both Node HTTPS and fetch, with a valid HTTPS control.
 

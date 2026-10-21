@@ -27,6 +27,7 @@ cp resources/app-icon/AppIcon.icns "$app/Contents/Resources/"
 for name in engine resources runtime; do
   ditto --norsrc --noextattr "$name" "$app/Contents/Resources/engine-root/$name"
 done
+ditto --norsrc --noextattr shared/dust-wave-platform/packages/node-core "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/node-core"
 ditto --norsrc --noextattr shared/dust-wave-platform/packages/timed-text "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/timed-text"
 mkdir -p "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/desktop-core/src" "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/worker-core/src"
 cp shared/dust-wave-platform/packages/desktop-core/src/report-client.js "$app/Contents/Resources/engine-root/shared/dust-wave-platform/packages/desktop-core/src/"
