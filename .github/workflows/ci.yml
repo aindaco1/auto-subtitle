@@ -21,10 +21,10 @@ jobs:
         run: node shared/dust-wave-platform/scripts/check-desktop-consumer.mjs
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: 24
+          node-version: '24.22.1'
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
         with:
-          version: '0.11.7'
+          version: '0.13.4'
           python-version: '3.11'
       - run: npm test
       - run: npm run test:quality
