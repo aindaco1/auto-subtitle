@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.6] - 2026-10-21
+
+- Update the bundled Node runtime to 24.22.1, which rejects the compromised eMudhra CA keys.
+- Add opt-in acceptance for all 12 disclosed TLS chains through both Node HTTPS and fetch, with a valid HTTPS control.
+
 ## [1.0.5] - 2026-09-25
 
 - Adopt the shared Apple support core through the compatible desktop diagnostics API. Preserve reviewed reports, explicit sending, update consent and existing app behavior.

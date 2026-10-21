@@ -1,11 +1,12 @@
 {
   "name": "auto-subtitle",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
     "test": "node --test engine/tests/*.test.mjs tests/development/*.test.mjs",
+    "test:tls": "runtime/macos-arm64/bin/node scripts/check-tls-trust.mjs",
     "test:quality": "node scripts/check-formatting.mjs",
     "test:apple": "node scripts/check-formatting.mjs --apple",
     "test:jev": "node scripts/check-formatting.mjs --live",

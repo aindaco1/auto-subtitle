@@ -14,7 +14,9 @@ python3 scripts/prepare-runtime.py /path/to/podcast-visualizer/runtime/macos-arm
 
 The script validates each media runtime file against this repository's `resources/runtime-sources/` pins, copies only Node/FFmpeg and their dependency closure, installs `requirements-sync.lock` into a separate Python copy, and relocates Mach-O dependencies. It never modifies the source Python distribution. The speech and Apple formatting helpers are built separately. Building requires an SDK with Foundation Models (Xcode 26+); the app retains a macOS 15 deployment target. `runtime/` is ignored by Git.
 
-The Node archive is from nodejs.org v24.19.0; FFmpeg source is ffmpeg.org 8.1.2. Exact archive and binary hashes are recorded in the checked-in source manifests. Model installation uses Platform's 17-file pinned inventory, exact size/SHA-256, HTTPS host checks before redirects, staging, cancellation and a 30-minute per-request bound suitable for the 445 MB encoder. A damaged installation is retained as a sibling `.replaced-invalid-…` backup only after a verified replacement is ready.
+The Node archive is from nodejs.org v24.22.1; FFmpeg source is ffmpeg.org 8.1.2. Exact archive and binary hashes are recorded in the checked-in source manifests. Model installation uses Platform's 17-file pinned inventory, exact size/SHA-256, HTTPS host checks before redirects, staging, cancellation and a 30-minute per-request bound suitable for the 445 MB encoder. A damaged installation is retained as a sibling `.replaced-invalid-…` backup only after a verified replacement is ready.
+
+Run `npm run test:tls` before release, and run `scripts/check-tls-trust.mjs` with the final bundled Node after signing. It must accept the valid control and reject all 12 published eMudhra test chains with certificate errors. Timeouts and DNS failures fail this opt-in check.
 
 ## Optional repair runtime
 
